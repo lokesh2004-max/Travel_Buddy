@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Users, Shield, Star, Menu, X, Phone, Mail, Globe, ChevronDown, Play } from 'lucide-react';
+import { AuthModal } from '@/components/AuthModal';
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeAccordion, setActiveAccordion] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const testimonials = [
     {
@@ -110,7 +112,10 @@ const Home = () => {
               <button onClick={() => scrollToSection('faq')} className="text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium">
                 FAQ
               </button>
-              <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200">
+              <button 
+                onClick={() => setIsAuthModalOpen(true)}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+              >
                 Join Now
               </button>
             </div>
@@ -133,7 +138,10 @@ const Home = () => {
                 <button onClick={() => scrollToSection('how')} className="text-left text-gray-700 hover:text-blue-600 py-2">How It Works</button>
                 <button onClick={() => scrollToSection('destinations')} className="text-left text-gray-700 hover:text-blue-600 py-2">Destinations</button>
                 <button onClick={() => scrollToSection('faq')} className="text-left text-gray-700 hover:text-blue-600 py-2">FAQ</button>
-                <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full font-semibold w-full">
+                <button 
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full font-semibold w-full"
+                >
                   Join Now
                 </button>
               </div>
@@ -485,6 +493,12 @@ const Home = () => {
           </div>
         </div>
       </footer>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
     </div>
   );
 };
