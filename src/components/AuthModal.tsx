@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { getSupabaseClient, isSupabaseConfigured, setSupabaseConfig } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Loader2 } from 'lucide-react';
@@ -24,8 +24,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   });
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [hasConfig, setHasConfig] = useState(isSupabaseConfigured());
-  const [config, setConfig] = useState({ url: '', anonKey: '' });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
@@ -34,38 +32,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     }));
   };
 
-  const handleSaveConfig = (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      setSupabaseConfig(config.url.trim(), config.anonKey.trim());
-      setHasConfig(true);
-      toast({
-        title: 'Supabase connected',
-        description: 'You can now sign in or sign up.',
-      });
-    } catch (error: any) {
-      toast({
-        title: 'Invalid configuration',
-        description: error.message,
-        variant: 'destructive',
-      });
-    }
-  };
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!hasConfig) {
-      toast({
-        title: 'Supabase not configured',
-        description: 'Please add your Supabase URL and anon key below.',
-        variant: 'destructive',
-      });
-      return;
-    }
     setIsLoading(true);
 
     try {
-      const supabase = getSupabaseClient();
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -96,20 +67,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       setIsLoading(false);
     }
   };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!hasConfig) {
-      toast({
-        title: 'Supabase not configured',
-        description: 'Please add your Supabase URL and anon key below.',
-        variant: 'destructive',
-      });
-      return;
-    }
     setIsLoading(true);
 
     try {
-      const supabase = getSupabaseClient();
       const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
@@ -135,6 +98,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       setIsLoading(false);
     }
   };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -143,42 +107,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             Join Travel Buddy
           </DialogTitle>
         </DialogHeader>
-
-        {!hasConfig && (
-          <Card className="mb-4">
-            <CardHeader>
-              <CardTitle className="text-lg">Connect Supabase</CardTitle>
-              <CardDescription>Paste your Supabase URL and anon key to enable authentication.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSaveConfig} className="space-y-3">
-                <div className="space-y-2">
-                  <Label htmlFor="sb-url">Supabase URL</Label>
-                  <Input
-                    id="sb-url"
-                    placeholder="https://YOUR-PROJECT.supabase.co"
-                    value={config.url}
-                    onChange={(e) => setConfig({ ...config, url: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="sb-key">Anon Key</Label>
-                  <Input
-                    id="sb-key"
-                    placeholder="public anon key"
-                    value={config.anonKey}
-                    onChange={(e) => setConfig({ ...config, anonKey: e.target.value })}
-                  />
-                </div>
-                <div className="flex justify-end">
-                  <Button type="submit" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                    Save
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        )}
 
         <Tabs defaultValue="signin" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
