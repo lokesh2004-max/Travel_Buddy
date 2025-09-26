@@ -1,6 +1,30 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://lhrecr161kpxvcj9.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxocmVjcjE2MWtweHZjajkiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNzAzNTAzNCwiZXhwIjoyMDUyNjExMDM0fQ.N1QP0YgBLFqgA9vLNV4e1T5rQKNADLuJQlPHXPJ8p6I'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Create a mock client or real client based on environment
+const createSupabaseClient = () => {
+  if (supabaseUrl && supabaseAnonKey && supabaseUrl !== '' && supabaseAnonKey !== '') {
+    return createClient(supabaseUrl, supabaseAnonKey)
+  }
+  
+  // Return mock client when no credentials
+  return {
+    auth: {
+      signUp: (credentials: any) => Promise.resolve({ 
+        data: { user: null }, 
+        error: { message: 'Please connect Supabase by clicking the green Supabase button in the top-right corner to enable authentication.' } 
+      }),
+      signInWithPassword: (credentials: any) => Promise.resolve({ 
+        data: { user: null }, 
+        error: { message: 'Please connect Supabase by clicking the green Supabase button in the top-right corner to enable authentication.' } 
+      }),
+      signOut: () => Promise.resolve({ error: null }),
+      getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+    }
+  }
+}
+
+export const supabase = createSupabaseClient()
