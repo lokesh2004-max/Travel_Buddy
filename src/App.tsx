@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Queera from "./pages/Queera";
 import BuddyMatch from "./pages/BuddyMatch";
 import BuddyDetails from "./pages/BuddyDetails";
+import SwipeMatch from "./pages/SwipeMatch";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/queera" element={<Queera />} />
           <Route path="/buddy-match" element={<BuddyMatch />} />
           <Route path="/buddy-details" element={<BuddyDetails />} />
+          <Route path="/swipe-match" element={<SwipeMatch />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
