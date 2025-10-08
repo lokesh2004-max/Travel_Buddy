@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Users, Shield, Star, Menu, X, Phone, Mail, Globe, ChevronDown, Play } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 
 const Home = () => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeAccordion, setActiveAccordion] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-   // 🟡👇 yahin handleSearch function likhna hai
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      const formattedQuery = encodeURIComponent(searchQuery.trim());
-      const googleSearchUrl = `https://www.google.com/search?q=${formattedQuery}`;
-      window.open(googleSearchUrl, '_blank');
+      navigate(`/search-results?query=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -85,11 +84,6 @@ const Home = () => {
     setIsMenuOpen(false);
   };
 
-  // const handleSearch = () => {
-  //   if (searchQuery.trim()) {
-  //     alert(`Searching for trips to: ${searchQuery}`);
-  //   }
-  // };
 
   return (
     <div className="min-h-screen bg-white">
@@ -183,6 +177,7 @@ const Home = () => {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   placeholder="Where do you want to explore?"
                   className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all duration-200 text-lg"
                 />
