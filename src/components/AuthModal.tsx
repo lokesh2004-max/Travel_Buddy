@@ -9,6 +9,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Loader2 } from 'lucide-react';
+import { z } from 'zod';
+
+const signUpSchema = z.object({
+  fullName: z.string().trim().min(1, "Name cannot be empty").max(100, "Name must be less than 100 characters"),
+  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters")
+});
+
+const signInSchema = z.object({
+  email: z.string().trim().email("Invalid email address"),
+  password: z.string().min(1, "Password is required")
+});
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -37,13 +49,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
+      // Validate form data
+      const validatedData = signUpSchema.parse(formData);
+
       const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
+        email: validatedData.email,
+        password: validatedData.password,
         options: {
           data: {
-            full_name: formData.fullName,
-          }
+            full_name: validatedData.fullName,
+          },
+          emailRedirectTo: `${window.location.origin}/`
         }
       });
 
@@ -52,17 +68,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       if (data.user) {
         toast({
           title: "Welcome to Travel Buddy! 🎉",
-          description: "Your account has been created successfully. Let's find your perfect travel companion!",
+          description: "Please check your email to confirm your account before signing in.",
         });
         onClose();
-        navigate('/queera');
       }
     } catch (error: any) {
-      toast({
-        title: "Signup failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Signup failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -73,12 +96,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Validate form data
+      const validatedData = signInSchema.parse({
         email: formData.email,
-        password: formData.password,
+        password: formData.password
       });
 
-      if (error) throw error;
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: validatedData.email,
+        password: validatedData.password,
+      });
+
+      if (error) {
+        // Handle specific error cases
+        if (error.message.toLowerCase().includes('email not confirmed')) {
+          throw new Error('Please check your email and confirm your account before signing in. Check your spam folder if you don\'t see the confirmation email.');
+        }
+        throw error;
+      }
 
       if (data.user) {
         toast({
@@ -89,11 +124,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         navigate('/queera');
       }
     } catch (error: any) {
-      toast({
-        title: "Login failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Login failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
