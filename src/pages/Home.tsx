@@ -85,11 +85,11 @@ const Home = () => {
     setIsMenuOpen(false);
   };
 
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      alert(`Searching for trips to: ${searchQuery}`);
-    }
-  };
+  // const handleSearch = () => {
+  //   if (searchQuery.trim()) {
+  //     alert(`Searching for trips to: ${searchQuery}`);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen bg-white">
