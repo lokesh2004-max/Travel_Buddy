@@ -66,12 +66,12 @@ Your Travel Buddy Match`);
   const additionalInfo = {
     joinedDate: 'March 2024',
     completedTrips: Math.floor(Math.random() * 15) + 3,
-    favoriteDestinations: ['Bali, Indonesia', 'Tokyo, Japan', 'Barcelona, Spain', 'Costa Rica'],
+    favoriteDestinations: ['Goa', 'Gangtok', 'Kerala', 'Rajasthan'],
     nextTrip: 'Planning a trip to Thailand in December',
     travelStyle: buddy.interests.includes('Luxury Hotels') ? 'Luxury Explorer' : 
                 buddy.interests.includes('Hostels') ? 'Budget Backpacker' : 
                 buddy.interests.includes('Camping') ? 'Nature Adventurer' : 'Cultural Explorer',
-    languages: ['English', 'Spanish'],
+    languages: ['English', 'Hindi'],
     about: `I'm passionate about discovering new cultures, trying authentic local cuisines, and creating unforgettable memories with fellow travelers. Whether it's watching a sunrise from a mountain peak or getting lost in a bustling local market, I believe the best adventures happen when you step out of your comfort zone with great company!`
   };
 
