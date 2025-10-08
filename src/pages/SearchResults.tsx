@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Search, MapPin, ArrowLeft, Users, Calendar } from 'lucide-react';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { Search, MapPin, ArrowLeft, Users, Calendar, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -119,10 +119,39 @@ const allTrips: Trip[] = [
   }
 ];
 
+const popularDestinations = [
+  { name: "Goa", emoji: "🏖️", trips: 15 },
+  { name: "Kashmir", emoji: "🏔️", trips: 8 },
+  { name: "Kerala", emoji: "🌴", trips: 12 },
+  { name: "Rajasthan", emoji: "🏰", trips: 10 },
+  { name: "Himachal", emoji: "⛰️", trips: 14 }
+];
+
 const SearchResults = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [filteredTrips, setFilteredTrips] = useState<Trip[]>([]);
   const query = searchParams.get('query') || '';
+
+  // Function to highlight matching keywords
+  const highlightText = (text: string, query: string) => {
+    if (!query.trim()) return text;
+    
+    const parts = text.split(new RegExp(`(${query})`, 'gi'));
+    return (
+      <>
+        {parts.map((part, index) => 
+          part.toLowerCase() === query.toLowerCase() ? (
+            <mark key={index} className="bg-yellow-200 text-gray-900 px-1 rounded">
+              {part}
+            </mark>
+          ) : (
+            part
+          )
+        )}
+      </>
+    );
+  };
 
   useEffect(() => {
     if (query.trim()) {
@@ -141,6 +170,10 @@ const SearchResults = () => {
     if (newQuery.trim()) {
       setSearchParams({ query: newQuery });
     }
+  };
+
+  const handleDestinationClick = (destination: string) => {
+    setSearchParams({ query: destination });
   };
 
   return (
@@ -193,6 +226,31 @@ const SearchResults = () => {
 
       {/* Results Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Popular Destinations - Show when no query or no results */}
+        {(!query || filteredTrips.length === 0) && (
+          <div className="mb-12">
+            <div className="flex items-center gap-2 mb-6">
+              <TrendingUp className="text-blue-600" size={24} />
+              <h2 className="text-2xl font-bold text-gray-800">Popular Destinations</h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+              {popularDestinations.map((dest, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleDestinationClick(dest.name)}
+                  className="bg-white hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 rounded-xl p-4 shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-100 group"
+                >
+                  <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">
+                    {dest.emoji}
+                  </div>
+                  <h3 className="font-semibold text-gray-800 mb-1">{dest.name}</h3>
+                  <p className="text-xs text-gray-500">{dest.trips} trips</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
             {query ? `Search Results for "${query}"` : 'All Travel Destinations'}
@@ -213,9 +271,11 @@ const SearchResults = () => {
                       ⭐ {trip.rating}
                     </Badge>
                   </div>
-                  <CardTitle className="text-xl font-bold text-gray-800">{trip.destination}</CardTitle>
+                  <CardTitle className="text-xl font-bold text-gray-800">
+                    {highlightText(trip.destination, query)}
+                  </CardTitle>
                   <CardDescription className="text-gray-600 leading-relaxed mt-2">
-                    {trip.description}
+                    {highlightText(trip.description, query)}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
