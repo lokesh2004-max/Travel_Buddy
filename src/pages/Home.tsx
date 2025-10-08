@@ -9,6 +9,15 @@ const Home = () => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
+   // 🟡👇 yahin handleSearch function likhna hai
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      const formattedQuery = encodeURIComponent(searchQuery.trim());
+      const googleSearchUrl = `https://www.google.com/search?q=${formattedQuery}`;
+      window.open(googleSearchUrl, '_blank');
+    }
+  };
+
   const testimonials = [
     {
       name: "Priya Sharma",
