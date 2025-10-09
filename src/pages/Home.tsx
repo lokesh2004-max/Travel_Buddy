@@ -44,9 +44,9 @@ const Home = () => {
   const destinations = [
     { name: "Rajasthan", imageUrl: "https://static.vecteezy.com/system/resources/previews/011/084/232/large_2x/full-picture-of-hawa-mahal-of-rajasthan-photo.jpg", trips: 45 },
     { name: "Kashmir", imageUrl: "https://img.veenaworld.com/wp-content/uploads/2023/01/shutterstock_2044050407-scaled.jpg", trips: 32 },
-    { name: "Kerala", imageUrl: "https://www.keralatourism.org/images/enchanting_kerala/large/kerala_backwaters20210519115242_754_1.jpg", trips: 38 },
+    { name: "Kerala", imageUrl: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800", trips: 38 },
     { name: "Goa", imageUrl: "https://www.holidify.com/images/bgImages/GOA.jpg", trips: 56 },
-    { name: "Himachal", imageUrl: "https://www.tourmyindia.com/states/himachal/image/himachal-pradesh-banner1.webp", trips: 41 },
+    { name: "Himachal", imageUrl: "https://i0.wp.com/www.tusktravel.com/blog/wp-content/uploads/2021/11/Bandli-Sanctuary-Himachal.jpg?resize=750%2C550&ssl=1", trips: 41 },
     { name: "Northeast", imageUrl: "https://www.holidify.com/images/bgImages/TAWANG.jpg", trips: 23 }
   ];
 
