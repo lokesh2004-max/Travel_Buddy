@@ -319,12 +319,12 @@ const Home = () => {
             ))}
           </div>
 
-          <div className="text-center mt-16">
+          {/* <div className="text-center mt-16">
             <button className="bg-white text-purple-900 px-8 py-4 rounded-full font-semibold hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 mx-auto">
               <Play size={20} />
               <span>Watch How It Works</span>
             </button>
-          </div>
+          </div> */}
         </div>
       </section>
 
