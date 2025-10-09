@@ -350,10 +350,7 @@ const Home = () => {
                   <h3 className="text-2xl font-bold text-gray-800 mb-2">{destination.name}</h3>
                   <p className="text-gray-600 mb-4">{destination.trips} active trips</p>
                   <button 
-                    onClick={() => {
-                      const query = `${destination.name} trips`;
-                      window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank', 'noopener,noreferrer');
-                    }}
+                    onClick={() => navigate(`/search-results?query=${encodeURIComponent(destination.name)}`)}
                     className="text-blue-600 font-semibold hover:text-purple-600 transition-colors"
                   >
                     Explore Trips →
