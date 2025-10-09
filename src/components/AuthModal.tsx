@@ -58,8 +58,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         options: {
           data: {
             full_name: validatedData.fullName,
-          },
-          emailRedirectTo: `${window.location.origin}/`
+          }
         }
       });
 
@@ -68,9 +67,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       if (data.user) {
         toast({
           title: "Welcome to Travel Buddy! 🎉",
-          description: "Please check your email to confirm your account before signing in.",
+          description: "Your account has been created successfully. Let's find your perfect travel companion!",
         });
         onClose();
+        navigate('/queera');
       }
     } catch (error: any) {
       if (error instanceof z.ZodError) {
@@ -107,13 +107,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         password: validatedData.password,
       });
 
-      if (error) {
-        // Handle specific error cases
-        if (error.message.toLowerCase().includes('email not confirmed')) {
-          throw new Error('Please check your email and confirm your account before signing in. Check your spam folder if you don\'t see the confirmation email.');
-        }
-        throw error;
-      }
+      if (error) throw error;
 
       if (data.user) {
         toast({
