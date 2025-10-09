@@ -42,12 +42,12 @@ const Home = () => {
   ];
 
   const destinations = [
-    { name: "Rajasthan", image: "🏰", trips: 45 },
-    { name: "Kashmir", image: "🏔️", trips: 32 },
-    { name: "Kerala", image: "🌴", trips: 38 },
-    { name: "Goa", image: "🏖️", trips: 56 },
-    { name: "Himachal", image: "⛰️", trips: 41 },
-    { name: "Northeast", image: "🌿", trips: 23 }
+    { name: "Rajasthan", imageUrl: "https://static.vecteezy.com/system/resources/previews/011/084/232/large_2x/full-picture-of-hawa-mahal-of-rajasthan-photo.jpg", trips: 45 },
+    { name: "Kashmir", imageUrl: "https://img.veenaworld.com/wp-content/uploads/2023/01/shutterstock_2044050407-scaled.jpg", trips: 32 },
+    { name: "Kerala", imageUrl: "https://www.keralatourism.org/images/enchanting_kerala/large/kerala_backwaters20210519115242_754_1.jpg", trips: 38 },
+    { name: "Goa", imageUrl: "https://www.holidify.com/images/bgImages/GOA.jpg", trips: 56 },
+    { name: "Himachal", imageUrl: "https://www.tourmyindia.com/states/himachal/image/himachal-pradesh-banner1.webp", trips: 41 },
+    { name: "Northeast", imageUrl: "https://www.holidify.com/images/bgImages/TAWANG.jpg", trips: 23 }
   ];
 
   const faqs = [
@@ -343,8 +343,13 @@ const Home = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {destinations.map((destination, index) => (
               <div key={index} className="bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-xl transform hover:scale-105 transition-all duration-300 group cursor-pointer">
-                <div className="h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform duration-300">
-                  {destination.image}
+                <div className="relative h-56 overflow-hidden">
+                  <img 
+                    src={destination.imageUrl} 
+                    alt={destination.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
                 </div>
                 <div className="p-6">
                   <h3 className="text-2xl font-bold text-gray-800 mb-2">{destination.name}</h3>
