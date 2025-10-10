@@ -22,6 +22,7 @@ const BuddyMatch = () => {
   const navigate = useNavigate();
   const [matches, setMatches] = useState<TravelBuddy[]>([]);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     // Get user answers from localStorage
@@ -43,7 +44,7 @@ const BuddyMatch = () => {
     const buddies: TravelBuddy[] = [
       {
         id: '1',
-        name: 'Sarah Chen',
+        name: 'Priya Sharma',
         image: '👩‍🦰',
         age: 24,
         location: 'Delhi',
@@ -51,11 +52,11 @@ const BuddyMatch = () => {
         interests: ['Photography', 'Hiking', 'Food Tours', 'Museums'],
         matchPercentage: 0,
         matchReasons: [],
-        email: 'sarah.chen@email.com'
+        email: 'priya.sharma@email.com'
       },
       {
         id: '2',
-        name: 'Anmol Sharma',
+        name: 'Anmol Verma',
         image: '👨‍🏫',
         age: 26,
         location: 'Arunachal Pradesh',
@@ -63,7 +64,7 @@ const BuddyMatch = () => {
         interests: ['Backpacking', 'Hostels', 'Street Food', 'Local Music'],
         matchPercentage: 0,
         matchReasons: [],
-        email: 'alex.rivera@email.com'
+        email: 'anmol.verma@email.com'
       },
       {
         id: '3',
@@ -75,11 +76,11 @@ const BuddyMatch = () => {
         interests: ['Luxury Hotels', 'Fine Dining', 'Shopping', 'Spas'],
         matchPercentage: 0,
         matchReasons: [],
-        email: 'emma.thompson@email.com'
+        email: 'diksha.upadhyay@email.com'
       },
       {
         id: '4',
-        name: 'Janvi Gupta',
+        name: 'Aarav Singh',
         image: '🧑‍🎤',
         age: 23,
         location: 'Karnal',
@@ -87,11 +88,11 @@ const BuddyMatch = () => {
         interests: ['Nightlife', 'Beach Parties', 'Festivals', 'Dancing'],
         matchPercentage: 0,
         matchReasons: [],
-        email: 'jake.martinez@email.com'
+        email: 'aarav.singh@email.com'
       },
       {
         id: '5',
-        name: 'Maya',
+        name: 'Kavya Menon',
         image: '👩‍🎨',
         age: 25,
         location: 'Srinagar',
@@ -99,7 +100,127 @@ const BuddyMatch = () => {
         interests: ['Camping', 'Rock Climbing', 'National Parks', 'Stargazing'],
         matchPercentage: 0,
         matchReasons: [],
-        email: 'maya.patel@email.com'
+        email: 'kavya.menon@email.com'
+      },
+      {
+        id: '6',
+        name: 'Rohan Kapoor',
+        image: '👨‍💻',
+        age: 27,
+        location: 'Bangalore',
+        bio: 'Tech-savvy traveler who loves digital nomad lifestyle and working from exotic locations.',
+        interests: ['Co-working Spaces', 'Cafes', 'Photography', 'Hiking'],
+        matchPercentage: 0,
+        matchReasons: [],
+        email: 'rohan.kapoor@email.com'
+      },
+      {
+        id: '7',
+        name: 'Sneha Reddy',
+        image: '👩‍🔬',
+        age: 29,
+        location: 'Hyderabad',
+        bio: 'History buff and archaeology enthusiast who explores ancient ruins and heritage sites.',
+        interests: ['Museums', 'Heritage Sites', 'Local Guides', 'Photography'],
+        matchPercentage: 0,
+        matchReasons: [],
+        email: 'sneha.reddy@email.com'
+      },
+      {
+        id: '8',
+        name: 'Arjun Malhotra',
+        image: '👨‍🍳',
+        age: 30,
+        location: 'Mumbai',
+        bio: 'Foodie traveler on a mission to taste every street food delicacy across India!',
+        interests: ['Street Food', 'Food Tours', 'Cooking Classes', 'Local Markets'],
+        matchPercentage: 0,
+        matchReasons: [],
+        email: 'arjun.malhotra@email.com'
+      },
+      {
+        id: '9',
+        name: 'Ishita Bose',
+        image: '👩‍🎓',
+        age: 22,
+        location: 'Kolkata',
+        bio: 'Student traveler who loves budget stays, making friends in hostels, and collecting stories.',
+        interests: ['Hostels', 'Backpacking', 'Meeting Locals', 'Cultural Exchange'],
+        matchPercentage: 0,
+        matchReasons: [],
+        email: 'ishita.bose@email.com'
+      },
+      {
+        id: '10',
+        name: 'Vikram Nair',
+        image: '👨‍✈️',
+        age: 31,
+        location: 'Kerala',
+        bio: 'Frequent flyer and hotel connoisseur who values comfort and premium travel experiences.',
+        interests: ['Luxury Hotels', 'Business Class', 'Fine Dining', 'Airport Lounges'],
+        matchPercentage: 0,
+        matchReasons: [],
+        email: 'vikram.nair@email.com'
+      },
+      {
+        id: '11',
+        name: 'Aisha Patel',
+        image: '👩‍🎤',
+        age: 26,
+        location: 'Goa',
+        bio: 'Beach lover and water sports enthusiast who lives for sunset parties and ocean adventures.',
+        interests: ['Beach Parties', 'Surfing', 'Diving', 'Festivals'],
+        matchPercentage: 0,
+        matchReasons: [],
+        email: 'aisha.patel@email.com'
+      },
+      {
+        id: '12',
+        name: 'Karan Thakur',
+        image: '👨‍🎨',
+        age: 28,
+        location: 'Himachal Pradesh',
+        bio: 'Mountain enthusiast and trekker who finds peace in the Himalayas and loves adventure sports.',
+        interests: ['Trekking', 'Camping', 'Rock Climbing', 'Mountain Biking'],
+        matchPercentage: 0,
+        matchReasons: [],
+        email: 'karan.thakur@email.com'
+      },
+      {
+        id: '13',
+        name: 'Meera Desai',
+        image: '👩‍⚕️',
+        age: 33,
+        location: 'Pune',
+        bio: 'Wellness traveler seeking yoga retreats, meditation centers, and spiritual experiences.',
+        interests: ['Yoga', 'Meditation', 'Spas', 'Wellness Retreats'],
+        matchPercentage: 0,
+        matchReasons: [],
+        email: 'meera.desai@email.com'
+      },
+      {
+        id: '14',
+        name: 'Siddharth Gupta',
+        image: '👨‍🎬',
+        age: 25,
+        location: 'Rajasthan',
+        bio: 'Photography enthusiast capturing stunning landscapes and vibrant cultural festivals.',
+        interests: ['Photography', 'Festivals', 'Heritage Sites', 'Local Culture'],
+        matchPercentage: 0,
+        matchReasons: [],
+        email: 'siddharth.gupta@email.com'
+      },
+      {
+        id: '15',
+        name: 'Tanvi Rao',
+        image: '👩‍🏫',
+        age: 24,
+        location: 'Chennai',
+        bio: 'Solo female traveler empowering others to explore the world safely and confidently.',
+        interests: ['Solo Travel', 'Hostels', 'Women Groups', 'Cultural Tours'],
+        matchPercentage: 0,
+        matchReasons: [],
+        email: 'tanvi.rao@email.com'
       }
     ];
 
@@ -197,9 +318,10 @@ const BuddyMatch = () => {
 
         {/* Matches Grid */}
         {matches.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {matches.map((buddy, index) => (
-              <Card 
+          <>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {(showAll ? matches : matches.slice(0, 4)).map((buddy, index) => (
+                <Card
                 key={buddy.id} 
                 className="card-hover card-shadow border-0 animate-bounce-in"
                 style={{ animationDelay: `${index * 0.1}s` }}
@@ -258,8 +380,22 @@ const BuddyMatch = () => {
                   </Button>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+            
+            {/* See More Buddies Button */}
+            {!showAll && matches.length > 4 && (
+              <div className="text-center mt-8 animate-fade-in">
+                <Button
+                  onClick={() => setShowAll(true)}
+                  size="lg"
+                  className="ocean-gradient hover:opacity-90 px-8"
+                >
+                  See More Buddies ({matches.length - 4} more)
+                </Button>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-12">
             <div className="text-4xl mb-4">🔍</div>
