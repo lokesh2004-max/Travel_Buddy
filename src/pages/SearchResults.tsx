@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { AuthModal } from '@/components/AuthModal';
 
 interface Trip {
   id: number;
@@ -164,6 +165,7 @@ const SearchResults = () => {
   const [filteredTrips, setFilteredTrips] = useState<Trip[]>([]);
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const query = searchParams.get('query') || '';
 
   const openModal = (trip: Trip) => {
@@ -464,6 +466,7 @@ const SearchResults = () => {
                     </p>
                   </div>
                   <Button 
+                    onClick={() => setIsAuthModalOpen(true)}
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg"
                   >
                     Book Now
@@ -474,6 +477,12 @@ const SearchResults = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
     </div>
   );
 };
