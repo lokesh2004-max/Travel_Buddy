@@ -226,8 +226,15 @@ const Home = () => {
             {/* Right Side - Video */}
             <div className="relative lg:block order-first lg:order-last">
               <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-purple-500/30 transform hover:scale-105 transition-transform duration-500">
-                {/* Video Container */}
-                <div className="relative aspect-[9/16] lg:aspect-video bg-gradient-to-br from-blue-900 to-purple-900">
+                {/* Video Container with Fallback Background */}
+                <div 
+                  className="relative aspect-[9/16] lg:aspect-video bg-gradient-to-br from-blue-900 to-purple-900"
+                  style={{
+                    backgroundImage: `url(${heroBackground})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                >
                   <video
                     autoPlay
                     loop
@@ -239,23 +246,24 @@ const Home = () => {
                     Your browser does not support the video tag.
                   </video>
                   
-                  {/* Video Overlay for better text contrast */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
+                  {/* Animated Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-purple-900/20 to-blue-900/30 animate-pulse"></div>
                   
-                  {/* Floating Badge */}
-                  <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
+                  {/* Floating Badge with Pulse */}
+                  <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg animate-fade-in hover:scale-110 transition-transform duration-300">
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                       <span className="text-sm font-semibold text-gray-800">Live Adventures</span>
                     </div>
                   </div>
 
-                  {/* Activity Tags */}
+                  {/* Activity Tags with Stagger Animation */}
                   <div className="absolute bottom-6 left-6 right-6 flex flex-wrap gap-2">
                     {['Trekking', 'Camping', 'Beach', 'City Tours'].map((activity, i) => (
                       <span 
                         key={i} 
-                        className="bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-xs font-medium shadow-md"
+                        className="bg-gradient-to-r from-white/90 to-white/80 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-full text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 animate-fade-in"
+                        style={{ animationDelay: `${i * 0.1}s` }}
                       >
                         {activity}
                       </span>
@@ -263,9 +271,10 @@ const Home = () => {
                   </div>
                 </div>
 
-                {/* Decorative Elements */}
-                <div className="absolute -top-4 -left-4 w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full blur-2xl opacity-50 animate-pulse"></div>
-                <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-2xl opacity-50 animate-pulse delay-1000"></div>
+                {/* Decorative Animated Elements */}
+                <div className="absolute -top-4 -left-4 w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full blur-2xl opacity-60 animate-pulse"></div>
+                <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-2xl opacity-60 animate-pulse" style={{ animationDelay: '1s' }}></div>
+                <div className="absolute top-1/2 -left-6 w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-500 rounded-full blur-2xl opacity-40 animate-pulse" style={{ animationDelay: '0.5s' }}></div>
               </div>
             </div>
           </div>
