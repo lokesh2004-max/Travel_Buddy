@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Users, Shield, Star, Menu, X, Phone, Mail, Globe, ChevronDown, Play } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
+import heroBackground from '@/assets/hero-background.webp';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -154,17 +155,23 @@ const Home = () => {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center">
+      <section 
+        id="home" 
+        className="min-h-screen flex items-center justify-center pt-16 relative bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${heroBackground})` }}
+      >
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center relative z-10">
           <div className="text-center lg:text-left">
             <h1 className="text-5xl lg:text-7xl font-bold mb-6">
               <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                 Discover.
               </span>
               <br />
-              <span className="text-gray-800">Find. Enjoy.</span>
+              <span className="text-white">Find. Enjoy.</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+            <p className="text-xl text-white mb-8 leading-relaxed">
               Connect with verified travel companions across India. 
               Turn your solo adventures into shared memories.
             </p>
@@ -191,7 +198,7 @@ const Home = () => {
               </button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
+            <div className="flex flex-wrap items-center gap-6 text-sm text-white">
               <div className="flex items-center space-x-2">
                 <Users className="text-blue-600" size={16} />
                 <span>5000+ Active Members</span>
