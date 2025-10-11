@@ -157,80 +157,115 @@ const Home = () => {
       {/* Hero Section */}
       <section 
         id="home" 
-        className="min-h-screen flex items-center justify-center pt-16 relative bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBackground})` }}
+        className="min-h-screen flex items-center justify-center pt-16 relative bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden"
       >
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center relative z-10">
-          <div className="text-center lg:text-left">
-            <h1 className="text-5xl lg:text-7xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Discover.
-              </span>
-              <br />
-              <span className="text-white">Find. Enjoy.</span>
-            </h1>
-            <p className="text-xl text-white mb-8 leading-relaxed">
-              Connect with verified travel companions across India. 
-              Turn your solo adventures into shared memories.
-            </p>
-            
-            {/* Search Bar */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                  placeholder="Where do you want to explore?"
-                  className="w-full pl-12 pr-4 py-4 rounded-2xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all duration-200 text-lg"
-                />
+        {/* Animated gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 animate-pulse"></div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left Side - Text & Search */}
+            <div className="text-center lg:text-left space-y-8">
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight">
+                <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-lg">
+                  Discover.
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 bg-clip-text text-transparent drop-shadow-lg">
+                  Find.
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 bg-clip-text text-transparent drop-shadow-lg">
+                  Enjoy.
+                </span>
+              </h1>
+              
+              <p className="text-xl lg:text-2xl text-gray-200 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                Connect with verified travel companions across India and turn your solo adventures into shared memories.
+              </p>
+              
+              {/* Search Bar */}
+              <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto lg:mx-0">
+                <div className="flex-1 relative group">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-purple-500 transition-colors" size={20} />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                    placeholder="Where do you want to explore?"
+                    className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/95 backdrop-blur-sm border-2 border-white/20 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 focus:outline-none transition-all duration-300 text-lg text-gray-800 placeholder-gray-500 shadow-xl"
+                  />
+                </div>
+                <button
+                  onClick={handleSearch}
+                  className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white px-8 py-4 rounded-2xl font-semibold hover:shadow-2xl hover:shadow-purple-500/50 transform hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center space-x-2 whitespace-nowrap"
+                >
+                  <Search size={20} />
+                  <span>Search Trips</span>
+                </button>
               </div>
-              <button
-                onClick={handleSearch}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-semibold hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center space-x-2"
-              >
-                <Search size={20} />
-                <span>Search Trips</span>
-              </button>
-            </div>
 
-            <div className="flex flex-wrap items-center gap-6 text-sm text-white">
-              <div className="flex items-center space-x-2">
-                <Users className="text-blue-600" size={16} />
-                <span>5000+ Active Members</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <MapPin className="text-green-600" size={16} />
-                <span>200+ Destinations</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Shield className="text-purple-600" size={16} />
-                <span>100% Verified</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative">
-            <div className="bg-white rounded-3xl shadow-2xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-500">
-              <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-6 text-white mb-4">
-                <h3 className="text-xl font-bold mb-2">Next Adventure</h3>
-                <p className="text-blue-100">Kashmir Valley Trek</p>
-                <div className="flex items-center justify-between mt-4">
-                  <span className="text-sm bg-white/20 px-3 py-1 rounded-full">5 spots left</span>
-                  <span className="text-lg font-bold">₹12,999</span>
+              {/* Stats */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 text-sm">
+                <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full">
+                  <Users className="text-blue-400" size={18} />
+                  <span className="text-white font-medium">5000+ Active Members</span>
+                </div>
+                <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full">
+                  <MapPin className="text-green-400" size={18} />
+                  <span className="text-white font-medium">200+ Destinations</span>
+                </div>
+                <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full">
+                  <Shield className="text-purple-400" size={18} />
+                  <span className="text-white font-medium">100% Verified</span>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
-                {['🏔️', '🌲', '🏕️'].map((emoji, i) => (
-                  <div key={i} className="bg-gray-50 rounded-xl p-4 text-center">
-                    <div className="text-2xl mb-2">{emoji}</div>
-                    <div className="text-xs text-gray-600">Adventure</div>
+            </div>
+
+            {/* Right Side - Video */}
+            <div className="relative lg:block order-first lg:order-last">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-purple-500/30 transform hover:scale-105 transition-transform duration-500">
+                {/* Video Container */}
+                <div className="relative aspect-[9/16] lg:aspect-video bg-gradient-to-br from-blue-900 to-purple-900">
+                  <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover"
+                  >
+                    <source src="https://cdn.pixabay.com/video/2024/01/25/197886-906456968_large.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  
+                  {/* Video Overlay for better text contrast */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
+                  
+                  {/* Floating Badge */}
+                  <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                      <span className="text-sm font-semibold text-gray-800">Live Adventures</span>
+                    </div>
                   </div>
-                ))}
+
+                  {/* Activity Tags */}
+                  <div className="absolute bottom-6 left-6 right-6 flex flex-wrap gap-2">
+                    {['Trekking', 'Camping', 'Beach', 'City Tours'].map((activity, i) => (
+                      <span 
+                        key={i} 
+                        className="bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-xs font-medium shadow-md"
+                      >
+                        {activity}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Decorative Elements */}
+                <div className="absolute -top-4 -left-4 w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full blur-2xl opacity-50 animate-pulse"></div>
+                <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full blur-2xl opacity-50 animate-pulse delay-1000"></div>
               </div>
             </div>
           </div>
