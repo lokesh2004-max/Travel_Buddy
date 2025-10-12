@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Queera from "./pages/Queera";
 import BuddyMatch from "./pages/BuddyMatch";
 import BuddyDetails from "./pages/BuddyDetails";
+import DestinationRecommendations from "./pages/DestinationRecommendations";
 import SwipeMatch from "./pages/SwipeMatch";
 import SearchResults from "./pages/SearchResults";
 import NotFound from "./pages/NotFound";
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/queera" element={<Queera />} />
           <Route path="/buddy-match" element={<BuddyMatch />} />
           <Route path="/buddy-details" element={<BuddyDetails />} />
+          <Route path="/destination-recommendations" element={<DestinationRecommendations />} />
           <Route path="/swipe-match" element={<SwipeMatch />} />
           <Route path="/search-results" element={<SearchResults />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

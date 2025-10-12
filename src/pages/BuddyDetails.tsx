@@ -286,21 +286,22 @@ Your Travel Buddy Match`);
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button 
-                    onClick={handleEmailClick}
+                    onClick={() => navigate('/destination-recommendations')}
                     size="lg"
                     variant="secondary"
                     className="bg-white text-primary hover:bg-white/90"
                   >
-                    <Mail className="h-4 w-4 mr-2" />
-                    Send Email
+                    <Plane className="h-4 w-4 mr-2" />
+                    Find Destinations
                   </Button>
                   <Button 
-                    variant="outline"
-                    onClick={() => navigate('/buddy-match')}
+                    onClick={handleEmailClick}
                     size="lg"
+                    variant="outline"
                     className="bg-white/10 text-white border-white/20 hover:bg-white/20"
                   >
-                    View More Matches
+                    <Mail className="h-4 w-4 mr-2" />
+                    Send Email
                   </Button>
                 </div>
               </CardContent>
