@@ -55,7 +55,7 @@ const DestinationRecommendations = () => {
     {
       id: '1',
       name: 'Goa',
-      emoji: '🏖️',
+     // emoji: '🏖️',
       description: 'The beach paradise of India, famous for its Portuguese heritage, stunning coastline, vibrant nightlife, and laid-back vibe. Perfect for beach lovers and party enthusiasts.',
       famousPlaces: ['Baga Beach', 'Fort Aguada', 'Basilica of Bom Jesus', 'Dudhsagar Falls', 'Anjuna Flea Market'],
       culturalHighlights: ['Portuguese architecture', 'Goan cuisine', 'Carnival festival', 'Shigmo festival', 'Traditional feni liquor'],
@@ -75,7 +75,7 @@ const DestinationRecommendations = () => {
     {
       id: '2',
       name: 'Manali',
-      emoji: '🏔️',
+      //emoji: '🏔️',
       description: 'A high-altitude Himalayan resort town famous for trekking, skiing, and stunning mountain views. Perfect for adventure seekers and nature lovers.',
       famousPlaces: ['Solang Valley', 'Rohtang Pass', 'Hadimba Temple', 'Old Manali', 'Jogini Waterfall'],
       culturalHighlights: ['Tibetan monasteries', 'Himachali culture', 'Local handicrafts', 'Mountain festivals', 'Traditional cuisine'],
@@ -95,7 +95,7 @@ const DestinationRecommendations = () => {
     {
       id: '3',
       name: 'Jaipur',
-      emoji: '🏰',
+     // emoji: '🏰',
       description: 'The Pink City of India, rich in royal heritage, magnificent forts, palaces, and vibrant bazaars. A cultural treasure trove for history enthusiasts.',
       famousPlaces: ['Amber Fort', 'Hawa Mahal', 'City Palace', 'Jantar Mantar', 'Nahargarh Fort'],
       culturalHighlights: ['Rajasthani architecture', 'Traditional handicrafts', 'Folk music & dance', 'Royal cuisine', 'Textile heritage'],
@@ -115,7 +115,7 @@ const DestinationRecommendations = () => {
     {
       id: '4',
       name: 'Rishikesh',
-      emoji: '🧘',
+      //emoji: '🧘',
       description: 'The Yoga Capital of the World, nestled in the Himalayas beside the Ganges. Perfect for spiritual seekers, adventure enthusiasts, and wellness travelers.',
       famousPlaces: ['Laxman Jhula', 'Ram Jhula', 'Beatles Ashram', 'Triveni Ghat', 'Neer Garh Waterfall'],
       culturalHighlights: ['Yoga & meditation centers', 'Ganga Aarti', 'Ashram culture', 'Spiritual retreats', 'Ayurvedic treatments'],
@@ -135,7 +135,7 @@ const DestinationRecommendations = () => {
     {
       id: '5',
       name: 'Kerala Backwaters',
-      emoji: '🛶',
+     // emoji: '🛶',
       description: 'A network of tranquil lagoons, lakes, and canals lined with palm trees. Experience houseboat cruises, Ayurveda, and serene natural beauty.',
       famousPlaces: ['Alleppey', 'Kumarakom', 'Vembanad Lake', 'Munroe Island', 'Marari Beach'],
       culturalHighlights: ['Houseboat stays', 'Kathakali dance', 'Kerala cuisine', 'Ayurvedic treatments', 'Snake boat races'],
@@ -155,7 +155,7 @@ const DestinationRecommendations = () => {
     {
       id: '6',
       name: 'Ladakh',
-      emoji: '⛰️',
+      //emoji: '⛰️',
       description: 'The Land of High Passes, offering dramatic landscapes, Buddhist monasteries, and thrilling road trips. A bucket-list destination for adventure lovers.',
       famousPlaces: ['Pangong Lake', 'Nubra Valley', 'Khardung La Pass', 'Thiksey Monastery', 'Magnetic Hill'],
       culturalHighlights: ['Buddhist culture', 'Tibetan monasteries', 'Local festivals', 'Traditional crafts', 'Apricot orchards'],
@@ -175,7 +175,7 @@ const DestinationRecommendations = () => {
     {
       id: '7',
       name: 'Udaipur',
-      emoji: '🕌',
+     // emoji: '🕌',
       description: 'The City of Lakes, known for its romantic palaces, lakeside views, and regal heritage. Perfect for luxury travelers and culture enthusiasts.',
       famousPlaces: ['City Palace', 'Lake Pichola', 'Jag Mandir', 'Saheliyon Ki Bari', 'Fateh Sagar Lake'],
       culturalHighlights: ['Royal architecture', 'Miniature paintings', 'Folk performances', 'Rajasthani cuisine', 'Mewar heritage'],
@@ -195,7 +195,7 @@ const DestinationRecommendations = () => {
     {
       id: '8',
       name: 'Andaman & Nicobar Islands',
-      emoji: '🏝️',
+     // emoji: '🏝️',
       description: 'Tropical paradise with pristine beaches, coral reefs, and crystal-clear waters. Ideal for beach lovers, divers, and adventure seekers.',
       famousPlaces: ['Radhanagar Beach', 'Cellular Jail', 'Neil Island', 'Ross Island', 'Havelock Island'],
       culturalHighlights: ['Tribal heritage', 'Marine life', 'Colonial history', 'Island culture', 'Seafood cuisine'],
@@ -215,7 +215,7 @@ const DestinationRecommendations = () => {
     {
       id: '9',
       name: 'Varanasi',
-      emoji: '🕉️',
+     // emoji: '🕉️',
       description: 'The spiritual capital of India, one of the oldest living cities. Experience ancient rituals, ghats, temples, and profound spirituality.',
       famousPlaces: ['Dashashwamedh Ghat', 'Kashi Vishwanath Temple', 'Assi Ghat', 'Sarnath', 'Manikarnika Ghat'],
       culturalHighlights: ['Ganga Aarti', 'Temple rituals', 'Classical music', 'Silk weaving', 'Street food'],
@@ -235,7 +235,7 @@ const DestinationRecommendations = () => {
     {
       id: '10',
       name: 'Hampi',
-      emoji: '🏛️',
+     // emoji: '🏛️',
       description: 'Ancient ruins of the Vijayanagara Empire, a UNESCO World Heritage Site. Perfect for history buffs and architecture lovers.',
       famousPlaces: ['Virupaksha Temple', 'Vittala Temple', 'Stone Chariot', 'Lotus Mahal', 'Elephant Stables'],
       culturalHighlights: ['Ancient architecture', 'Stone sculptures', 'Boulder landscapes', 'Temple festivals', 'Handicrafts'],
@@ -255,7 +255,7 @@ const DestinationRecommendations = () => {
     {
       id: '11',
       name: 'Mumbai',
-      emoji: '🌆',
+     // emoji: '🌆',
       description: 'The City of Dreams, India\'s financial capital with Bollywood glamour, colonial architecture, and vibrant nightlife.',
       famousPlaces: ['Gateway of India', 'Marine Drive', 'Elephanta Caves', 'Colaba Causeway', 'Bandra-Worli Sea Link'],
       culturalHighlights: ['Bollywood culture', 'Street food', 'Art galleries', 'Colonial buildings', 'Dabbawala system'],
@@ -275,7 +275,7 @@ const DestinationRecommendations = () => {
     {
       id: '12',
       name: 'Spiti Valley',
-      emoji: '🏔️',
+     // emoji: '🏔️',
       description: 'A cold desert mountain valley in the Himalayas, known for its stark beauty, ancient monasteries, and off-beat adventure.',
       famousPlaces: ['Key Monastery', 'Chandratal Lake', 'Dhankar Monastery', 'Pin Valley National Park', 'Tabo Monastery'],
       culturalHighlights: ['Buddhist monasteries', 'Tibetan culture', 'Local festivals', 'Traditional villages', 'Handicrafts'],
