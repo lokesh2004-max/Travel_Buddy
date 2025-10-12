@@ -6,6 +6,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { ArrowLeft, MapPin, Star, Clock, Users, DollarSign, Sparkles, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+// Import destination images
+import goaImage from '@/assets/goa-beach.jpg';
+import manaliImage from '@/assets/manali-mountains.jpg';
+import jaipurImage from '@/assets/jaipur-palace.jpg';
+import rishikeshImage from '@/assets/rishikesh-ganges.jpg';
+import keralaImage from '@/assets/kerala-backwaters.jpg';
+import ladakhImage from '@/assets/ladakh-lake.jpg';
+import udaipurImage from '@/assets/udaipur-palace.jpg';
+import andamanImage from '@/assets/andaman-beach.jpg';
+import varanasiImage from '@/assets/varanasi-ghats.jpg';
+import hampiImage from '@/assets/hampi-ruins.jpg';
+import mumbaiImage from '@/assets/mumbai-gateway.jpg';
+import spitiImage from '@/assets/spiti-valley.jpg';
+
 // Destination interface with all required details
 interface Destination {
   id: string;
@@ -52,7 +66,7 @@ const DestinationRecommendations = () => {
       groupSize: ['Solo', 'Small', 'Medium', 'Large'],
       tripHighlights: ['Beach hopping', 'Water sports', 'Beach parties', 'Portuguese forts', 'Seafood delicacies'],
       tags: ['Beach', 'Nightlife', 'Adventure', 'Culture', 'Food'],
-      imageUrl: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800',
+      imageUrl: goaImage,
       rating: 4.7,
       travelStyle: ['relaxation', 'nightlife', 'adventure'],
       accommodationType: ['hostel', 'hotel', 'airbnb'],
@@ -72,7 +86,7 @@ const DestinationRecommendations = () => {
       groupSize: ['Solo', 'Small', 'Medium'],
       tripHighlights: ['Trekking', 'Paragliding', 'Snow activities', 'Camping', 'Mountain biking'],
       tags: ['Mountains', 'Adventure', 'Nature', 'Trekking', 'Camping'],
-      imageUrl: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800',
+      imageUrl: manaliImage,
       rating: 4.8,
       travelStyle: ['adventure'],
       accommodationType: ['hotel', 'camping', 'airbnb'],
@@ -92,7 +106,7 @@ const DestinationRecommendations = () => {
       groupSize: ['Solo', 'Small', 'Medium', 'Large'],
       tripHighlights: ['Palace tours', 'Heritage walks', 'Shopping in bazaars', 'Rajasthani cuisine', 'Cultural shows'],
       tags: ['Culture', 'Heritage', 'Cities', 'Shopping', 'Food'],
-      imageUrl: 'https://images.unsplash.com/photo-1599661046827-dacff0c0f09a?w=800',
+      imageUrl: jaipurImage,
       rating: 4.6,
       travelStyle: ['culture'],
       accommodationType: ['hotel', 'airbnb'],
@@ -112,7 +126,7 @@ const DestinationRecommendations = () => {
       groupSize: ['Solo', 'Small', 'Medium'],
       tripHighlights: ['River rafting', 'Bungee jumping', 'Yoga retreats', 'Camping by Ganges', 'Trekking'],
       tags: ['Adventure', 'Nature', 'Relaxation', 'Camping', 'Mountains'],
-      imageUrl: 'https://images.unsplash.com/photo-1626789809959-0b0e8c7c8f4e?w=800',
+      imageUrl: rishikeshImage,
       rating: 4.7,
       travelStyle: ['adventure', 'relaxation'],
       accommodationType: ['hostel', 'camping', 'hotel'],
@@ -132,7 +146,7 @@ const DestinationRecommendations = () => {
       groupSize: ['Small', 'Medium'],
       tripHighlights: ['Houseboat cruise', 'Ayurvedic spa', 'Village tours', 'Seafood delicacies', 'Beach relaxation'],
       tags: ['Nature', 'Relaxation', 'Beach', 'Luxury', 'Culture'],
-      imageUrl: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800',
+      imageUrl: keralaImage,
       rating: 4.9,
       travelStyle: ['relaxation'],
       accommodationType: ['hotel', 'airbnb'],
@@ -152,7 +166,7 @@ const DestinationRecommendations = () => {
       groupSize: ['Small', 'Medium'],
       tripHighlights: ['Bike trips', 'Lake camping', 'Monastery visits', 'High-altitude trekking', 'Stargazing'],
       tags: ['Adventure', 'Mountains', 'Nature', 'Camping', 'Trekking'],
-      imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
+      imageUrl: ladakhImage,
       rating: 4.9,
       travelStyle: ['adventure'],
       accommodationType: ['hotel', 'camping'],
@@ -172,7 +186,7 @@ const DestinationRecommendations = () => {
       groupSize: ['Solo', 'Small', 'Medium'],
       tripHighlights: ['Palace tours', 'Boat rides', 'Rooftop dining', 'Heritage hotels', 'Shopping'],
       tags: ['Culture', 'Luxury', 'Heritage', 'Cities', 'Relaxation'],
-      imageUrl: 'https://images.unsplash.com/photo-1599658880436-c61792e70672?w=800',
+      imageUrl: udaipurImage,
       rating: 4.8,
       travelStyle: ['culture', 'relaxation'],
       accommodationType: ['hotel'],
@@ -192,7 +206,7 @@ const DestinationRecommendations = () => {
       groupSize: ['Small', 'Medium'],
       tripHighlights: ['Scuba diving', 'Snorkeling', 'Beach hopping', 'Water sports', 'Island camping'],
       tags: ['Beach', 'Adventure', 'Nature', 'Luxury', 'Islands'],
-      imageUrl: 'https://images.unsplash.com/photo-1589203165921-04ee1e7b1c6e?w=800',
+      imageUrl: andamanImage,
       rating: 4.8,
       travelStyle: ['adventure', 'relaxation'],
       accommodationType: ['hotel', 'airbnb'],
@@ -212,7 +226,7 @@ const DestinationRecommendations = () => {
       groupSize: ['Solo', 'Small', 'Medium'],
       tripHighlights: ['Boat rides at sunrise', 'Temple visits', 'Cultural performances', 'Food tours', 'Photography'],
       tags: ['Culture', 'Heritage', 'Cities', 'Food', 'Spiritual'],
-      imageUrl: 'https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=800',
+      imageUrl: varanasiImage,
       rating: 4.5,
       travelStyle: ['culture'],
       accommodationType: ['hostel', 'hotel'],
@@ -232,7 +246,7 @@ const DestinationRecommendations = () => {
       groupSize: ['Solo', 'Small', 'Medium'],
       tripHighlights: ['Temple exploration', 'Boulder climbing', 'Sunset views', 'Heritage walks', 'Photography'],
       tags: ['Culture', 'Heritage', 'Nature', 'Adventure', 'Budget'],
-      imageUrl: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=800',
+      imageUrl: hampiImage,
       rating: 4.7,
       travelStyle: ['culture', 'adventure'],
       accommodationType: ['hostel', 'hotel'],
@@ -252,7 +266,7 @@ const DestinationRecommendations = () => {
       groupSize: ['Solo', 'Small', 'Medium', 'Large'],
       tripHighlights: ['City tours', 'Food walks', 'Nightlife', 'Shopping', 'Beach visits'],
       tags: ['Cities', 'Nightlife', 'Food', 'Culture', 'Beach'],
-      imageUrl: 'https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?w=800',
+      imageUrl: mumbaiImage,
       rating: 4.5,
       travelStyle: ['nightlife', 'culture'],
       accommodationType: ['hostel', 'hotel', 'airbnb'],
@@ -272,7 +286,7 @@ const DestinationRecommendations = () => {
       groupSize: ['Small', 'Medium'],
       tripHighlights: ['High-altitude trekking', 'Camping', 'Monastery visits', 'Village homestays', 'Stargazing'],
       tags: ['Adventure', 'Mountains', 'Nature', 'Camping', 'Offbeat'],
-      imageUrl: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800',
+      imageUrl: spitiImage,
       rating: 4.9,
       travelStyle: ['adventure'],
       accommodationType: ['camping', 'hotel'],
