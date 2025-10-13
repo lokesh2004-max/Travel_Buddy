@@ -4,6 +4,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useBookingStore } from '@/store/bookingStore';
+import { useToast } from '@/hooks/use-toast';
+import ProgressBar from '@/components/ProgressBar';
+
+const BOOKING_STEPS = [
+  { number: 1, name: 'Search', description: 'Find trips' },
+  { number: 2, name: 'Login', description: 'Sign in' },
+  { number: 3, name: 'Quiz', description: 'Preferences' },
+  { number: 4, name: 'Buddy', description: 'Find match' },
+  { number: 5, name: 'Book', description: 'Confirm' },
+];
 
 interface Question {
   id: string;
@@ -18,9 +29,15 @@ interface Question {
 
 const Queera = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { setQuizAnswers, setCurrentStep } = useBookingStore();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isAnimating, setIsAnimating] = useState(false);
+
+  React.useEffect(() => {
+    setCurrentStep(3);
+  }, [setCurrentStep]);
 
   // Travel preference questions with personality
   const questions: Question[] = [

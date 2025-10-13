@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { AuthModal } from '@/components/AuthModal';
+import { useBookingStore } from '@/store/bookingStore';
+import { useToast } from '@/hooks/use-toast';
 
 interface Trip {
   id: number;
@@ -161,12 +163,66 @@ const popularDestinations = [
 
 const SearchResults = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [filteredTrips, setFilteredTrips] = useState<Trip[]>([]);
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const query = searchParams.get('query') || '';
+  
+  const { 
+    setSelectedTrip: saveSelectedTrip, 
+    isAuthenticated, 
+    quizAnswers, 
+    selectedBuddy,
+    setCurrentStep 
+  } = useBookingStore();
+
+  const handleBookNow = (trip: Trip) => {
+    // Convert Trip to Destination format for the store
+    const destinationTrip = {
+      id: trip.id.toString(),
+      name: trip.destination,
+      emoji: trip.emoji,
+      description: trip.description,
+      approximateCost: trip.price,
+      duration: trip.duration,
+      imageUrl: trip.imageUrl,
+      rating: trip.rating,
+      tags: trip.tags,
+      tripHighlights: trip.highlights,
+    };
+
+    saveSelectedTrip(destinationTrip as any);
+
+    // Smart redirect based on current progress
+    if (!isAuthenticated) {
+      setCurrentStep(2);
+      setIsAuthModalOpen(true);
+      toast({
+        title: 'Sign in Required',
+        description: 'Please sign in to continue with your booking',
+      });
+    } else if (!quizAnswers || Object.keys(quizAnswers).length === 0) {
+      setCurrentStep(3);
+      navigate('/queera');
+      toast({
+        title: 'Complete Your Quiz',
+        description: 'Help us find your perfect travel buddy',
+      });
+    } else if (!selectedBuddy) {
+      setCurrentStep(4);
+      navigate('/buddy-match');
+      toast({
+        title: 'Find Your Buddy',
+        description: 'Choose a travel buddy for your trip',
+      });
+    } else {
+      setCurrentStep(5);
+      navigate('/booking');
+    }
+  };
 
   const openModal = (trip: Trip) => {
     setSelectedTrip(trip);
@@ -466,7 +522,7 @@ const SearchResults = () => {
                     </p>
                   </div>
                   <Button 
-                    onClick={() => setIsAuthModalOpen(true)}
+                    onClick={() => handleBookNow(selectedTrip)}
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg"
                   >
                     Book Now

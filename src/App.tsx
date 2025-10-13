@@ -10,6 +10,7 @@ import BuddyDetails from "./pages/BuddyDetails";
 import DestinationRecommendations from "./pages/DestinationRecommendations";
 import SwipeMatch from "./pages/SwipeMatch";
 import SearchResults from "./pages/SearchResults";
+import BookingPage from "./pages/BookingPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/destination-recommendations" element={<DestinationRecommendations />} />
           <Route path="/swipe-match" element={<SwipeMatch />} />
           <Route path="/search-results" element={<SearchResults />} />
+          <Route path="/booking" element={<BookingPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

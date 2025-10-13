@@ -3,6 +3,17 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import TravelBuddySwipeCard from '@/components/TravelBuddySwipeCard';
+import { useBookingStore } from '@/store/bookingStore';
+import { useToast } from '@/hooks/use-toast';
+import ProgressBar from '@/components/ProgressBar';
+
+const BOOKING_STEPS = [
+  { number: 1, name: 'Search', description: 'Find trips' },
+  { number: 2, name: 'Login', description: 'Sign in' },
+  { number: 3, name: 'Quiz', description: 'Preferences' },
+  { number: 4, name: 'Buddy', description: 'Find match' },
+  { number: 5, name: 'Book', description: 'Confirm' },
+];
 
 // Mock data for travel buddies
 const mockBuddies = [
@@ -70,11 +81,26 @@ const mockBuddies = [
 
 const SwipeMatch = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { setSelectedBuddy, setCurrentStep, selectedTrip } = useBookingStore();
   const [buddies, setBuddies] = useState(mockBuddies);
   const [connectedBuddies, setConnectedBuddies] = useState<typeof mockBuddies>([]);
 
+  React.useEffect(() => {
+    setCurrentStep(4);
+  }, [setCurrentStep]);
+
   const handleSwipeRight = (buddy: typeof mockBuddies[0]) => {
     setConnectedBuddies(prev => [...prev, buddy]);
+    setSelectedBuddy(buddy as any);
+    toast({
+      title: `Connected with ${buddy.name}! 🎉`,
+      description: `${buddy.matchPercentage}% match`,
+    });
+    
+    if (selectedTrip) {
+      setTimeout(() => navigate('/booking'), 1000);
+    }
   };
 
   const handleSwipeLeft = (buddy: typeof mockBuddies[0]) => {
@@ -91,8 +117,9 @@ const SwipeMatch = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 py-8">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
+      <ProgressBar currentStep={4} steps={BOOKING_STEPS} />
+      <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <Button
