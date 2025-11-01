@@ -407,11 +407,10 @@ const DestinationRecommendations = () => {
   };
 
   const handleBookNow = () => {
-    // Store selected destination and navigate to planning page
+    // Store selected destination and navigate to booking page
     if (selectedDestination) {
       localStorage.setItem('selectedDestination', JSON.stringify(selectedDestination));
-      // Navigate to trip planning page (you can create this next)
-      navigate('/trip-planning');
+      navigate('/booking');
     }
   };
 
