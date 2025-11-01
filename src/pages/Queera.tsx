@@ -30,7 +30,7 @@ interface Question {
 const Queera = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { setQuizAnswers, setCurrentStep } = useBookingStore();
+  const { selectedTrip, setQuizAnswers, setCurrentStep } = useBookingStore();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isAnimating, setIsAnimating] = useState(false);
@@ -162,7 +162,7 @@ const Queera = () => {
       ]
     },
     {
-      id: 'destination',
+      id: 'destination_type',
       question: 'What type of destination calls to you?',
       options: [
         {
@@ -209,9 +209,20 @@ const Queera = () => {
         setIsAnimating(false);
       }, 300);
     } else {
-      // Quiz completed, navigate to results
-      localStorage.setItem('queeraAnswers', JSON.stringify(newAnswers));
-      navigate('/buddy-match');
+      // Quiz completed - save to store and navigate
+      setQuizAnswers(newAnswers);
+      
+      toast({
+        title: "Quiz completed! 🎉",
+        description: "Let's find your perfect travel buddy",
+      });
+
+      // Smart redirect: if trip selected, go to buddy match; otherwise go to search
+      if (selectedTrip) {
+        navigate('/buddy-match');
+      } else {
+        navigate('/search');
+      }
     }
   };
 
@@ -225,6 +236,8 @@ const Queera = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 py-8">
+      <ProgressBar currentStep={3} steps={BOOKING_STEPS} />
+      
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8 animate-slide-in-up">
