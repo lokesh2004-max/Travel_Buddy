@@ -8,6 +8,15 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { AuthModal } from '@/components/AuthModal';
 import { useBookingStore } from '@/store/bookingStore';
 import { useToast } from '@/hooks/use-toast';
+import ProgressBar from '@/components/ProgressBar';
+
+const BOOKING_STEPS = [
+  { number: 1, name: 'Search', description: 'Find trips' },
+  { number: 2, name: 'Login', description: 'Sign in' },
+  { number: 3, name: 'Quiz', description: 'Preferences' },
+  { number: 4, name: 'Buddy', description: 'Find match' },
+  { number: 5, name: 'Book', description: 'Confirm' },
+];
 
 interface Trip {
   id: number;
@@ -179,6 +188,10 @@ const SearchResults = () => {
     setCurrentStep 
   } = useBookingStore();
 
+  React.useEffect(() => {
+    setCurrentStep(1);
+  }, [setCurrentStep]);
+
   const handleBookNow = (trip: Trip) => {
     // Convert Trip to Destination format for the store
     const destinationTrip = {
@@ -278,18 +291,20 @@ const SearchResults = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10">
+      <ProgressBar currentStep={1} steps={BOOKING_STEPS} />
+      
       {/* Header */}
-      <div className="bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-50">
+      <div className="bg-background/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between mb-4">
-            <Link to="/" className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors">
+            <Link to="/" className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors">
               <ArrowLeft size={20} />
               <span className="font-medium">Back to Home</span>
             </Link>
             <div className="flex items-center space-x-2">
               <div className="text-2xl">🌍</div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-xl font-bold ocean-gradient bg-clip-text text-transparent">
                 Travel Buddy
               </span>
             </div>
@@ -298,7 +313,7 @@ const SearchResults = () => {
           {/* Search Bar */}
           <div className="flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 type="text"
                 defaultValue={query}
@@ -308,7 +323,7 @@ const SearchResults = () => {
                   }
                 }}
                 placeholder="Search destinations, activities, or experiences..."
-                className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all duration-200"
+                className="w-full pl-12 pr-4 py-3 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all bg-background"
               />
             </div>
             <Button
@@ -316,7 +331,7 @@ const SearchResults = () => {
                 const input = e.currentTarget.previousElementSibling?.querySelector('input');
                 if (input) handleSearch(input.value);
               }}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              className="ocean-gradient hover:opacity-90 transition-all"
             >
               <Search size={20} className="mr-2" />
               Search
@@ -331,40 +346,44 @@ const SearchResults = () => {
         {(!query || filteredTrips.length === 0) && (
           <div className="mb-12">
             <div className="flex items-center gap-2 mb-6">
-              <TrendingUp className="text-blue-600" size={24} />
-              <h2 className="text-2xl font-bold text-gray-800">Popular Destinations</h2>
+              <TrendingUp className="text-primary" size={24} />
+              <h2 className="text-2xl font-bold">Popular Destinations</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {popularDestinations.map((dest, index) => (
                 <button
                   key={index}
                   onClick={() => handleDestinationClick(dest.name)}
-                  className="bg-white hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 rounded-xl p-4 shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-100 group"
+                  className="bg-card hover:bg-primary/5 rounded-xl p-4 card-shadow card-hover border group animate-fade-in"
                 >
                   <div className="text-4xl mb-2 group-hover:scale-110 transition-transform">
                     {dest.emoji}
                   </div>
-                  <h3 className="font-semibold text-gray-800 mb-1">{dest.name}</h3>
-                  <p className="text-xs text-gray-500">{dest.trips} trips</p>
+                  <h3 className="font-semibold mb-1">{dest.name}</h3>
+                  <p className="text-xs text-muted-foreground">{dest.trips} trips</p>
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+        <div className="mb-8 animate-slide-in-up">
+          <h1 className="text-3xl font-bold mb-2">
             {query ? `Search Results for "${query}"` : 'All Travel Destinations'}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Found {filteredTrips.length} {filteredTrips.length === 1 ? 'trip' : 'trips'} matching your search
           </p>
         </div>
 
         {filteredTrips.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredTrips.map((trip) => (
-              <Card key={trip.id} className="group overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:scale-105 bg-white/80 backdrop-blur-sm border-0">
+            {filteredTrips.map((trip, idx) => (
+              <Card 
+                key={trip.id} 
+                className="group overflow-hidden card-shadow card-hover bg-card/80 backdrop-blur-sm animate-fade-in"
+                style={{ animationDelay: `${idx * 0.1}s` }}
+              >
                 {/* Image Banner */}
                 <div className="relative h-48 overflow-hidden">
                   <img 
@@ -373,33 +392,33 @@ const SearchResults = () => {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                  <Badge className="absolute top-4 right-4 bg-white/95 text-gray-800 border-0 backdrop-blur-sm">
+                  <Badge className="absolute top-4 right-4 bg-background/95 border-0 backdrop-blur-sm">
                     <Star size={14} className="mr-1 fill-yellow-400 text-yellow-400" />
                     {trip.rating}
                   </Badge>
                 </div>
 
                 <CardHeader>
-                  <CardTitle className="text-xl font-bold text-gray-800">
+                  <CardTitle className="text-xl font-bold">
                     {highlightText(trip.destination, query)}
                   </CardTitle>
-                  <CardDescription className="text-gray-600 leading-relaxed mt-2">
+                  <CardDescription className="leading-relaxed mt-2">
                     {highlightText(trip.description, query)}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3 mb-4">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Calendar size={16} className="mr-2 text-blue-600" />
+                    <div className="flex items-center text-sm">
+                      <Calendar size={16} className="mr-2 text-primary" />
                       {trip.duration}
                     </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Users size={16} className="mr-2 text-purple-600" />
+                    <div className="flex items-center text-sm">
+                      <Users size={16} className="mr-2 text-primary" />
                       {trip.groupSize}
                     </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin size={16} className="mr-2 text-green-600" />
-                      Starting from <span className="font-semibold ml-1">{trip.price}</span>
+                    <div className="flex items-center text-sm">
+                      <MapPin size={16} className="mr-2 text-primary" />
+                      Starting from <span className="font-semibold ml-1 text-primary">{trip.price}</span>
                     </div>
                   </div>
                   
@@ -413,7 +432,7 @@ const SearchResults = () => {
 
                   <Button 
                     onClick={() => openModal(trip)}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                    className="w-full ocean-gradient hover:opacity-90"
                   >
                     View Details
                   </Button>
@@ -422,15 +441,15 @@ const SearchResults = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16">
+          <div className="text-center py-16 animate-fade-in">
             <div className="text-6xl mb-4">🔍</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">No trips found</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold mb-2">No trips found</h2>
+            <p className="text-muted-foreground mb-6">
               We couldn't find any trips matching "{query}". Try searching for different destinations or activities.
             </p>
             <Button
               onClick={() => setSearchParams({})}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              className="ocean-gradient hover:opacity-90"
             >
               View All Trips
             </Button>
@@ -483,19 +502,19 @@ const SearchResults = () => {
               {/* Content */}
               <div className="p-6 md:p-8">
                 <div className="mb-6">
-                  <h3 className="text-xl font-bold text-gray-800 mb-3">About This Trip</h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <h3 className="text-xl font-bold mb-3">About This Trip</h3>
+                  <p className="text-muted-foreground leading-relaxed">
                     {selectedTrip.details}
                   </p>
                 </div>
 
                 <div className="mb-6">
-                  <h3 className="text-xl font-bold text-gray-800 mb-3">Highlights</h3>
+                  <h3 className="text-xl font-bold mb-3">Highlights</h3>
                   <div className="flex flex-wrap gap-2">
                     {selectedTrip.highlights.map((highlight, index) => (
                       <Badge 
                         key={index} 
-                        className="bg-gradient-to-r from-blue-100 to-purple-100 text-gray-800 border-0 px-4 py-2 text-sm"
+                        className="ocean-gradient text-white border-0 px-4 py-2 text-sm"
                       >
                         ✓ {highlight}
                       </Badge>
@@ -504,7 +523,7 @@ const SearchResults = () => {
                 </div>
 
                 <div className="mb-6">
-                  <h3 className="text-xl font-bold text-gray-800 mb-3">Trip Tags</h3>
+                  <h3 className="text-xl font-bold mb-3">Trip Tags</h3>
                   <div className="flex flex-wrap gap-2">
                     {selectedTrip.tags.map((tag, index) => (
                       <Badge key={index} variant="outline" className="px-3 py-1">
@@ -514,16 +533,16 @@ const SearchResults = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-between pt-6 border-t">
                   <div>
-                    <p className="text-sm text-gray-500">Starting from</p>
-                    <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    <p className="text-sm text-muted-foreground">Starting from</p>
+                    <p className="text-3xl font-bold ocean-gradient bg-clip-text text-transparent">
                       {selectedTrip.price}
                     </p>
                   </div>
                   <Button 
                     onClick={() => handleBookNow(selectedTrip)}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-6 text-lg"
+                    className="ocean-gradient hover:opacity-90 px-8 py-6 text-lg card-shadow"
                   >
                     Book Now
                   </Button>

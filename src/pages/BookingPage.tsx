@@ -244,11 +244,15 @@ const BookingPage = () => {
     setIsSendingEmail(true);
 
     try {
-      // Note: Users need to configure EmailJS service, template, and public key
-      // This is a placeholder implementation
-      const SERVICE_ID = 'YOUR_SERVICE_ID'; // Replace with actual EmailJS service ID
-      const TEMPLATE_ID = 'YOUR_TEMPLATE_ID'; // Replace with actual EmailJS template ID
-      const PUBLIC_KEY = 'YOUR_PUBLIC_KEY'; // Replace with actual EmailJS public key
+      // EmailJS Configuration Instructions:
+      // 1. Sign up at https://www.emailjs.com/
+      // 2. Create an email service (Gmail, Outlook, etc.)
+      // 3. Create an email template with variables: {{to_name}}, {{trip_name}}, {{trip_duration}}, etc.
+      // 4. Get your Service ID, Template ID, and Public Key from the dashboard
+      // 5. Replace the placeholder values below
+      const SERVICE_ID = 'YOUR_SERVICE_ID'; // From EmailJS Dashboard → Email Services
+      const TEMPLATE_ID = 'YOUR_TEMPLATE_ID'; // From EmailJS Dashboard → Email Templates
+      const PUBLIC_KEY = 'YOUR_PUBLIC_KEY'; // From EmailJS Account page
 
       const pdfBlob = generatePDF();
 
@@ -270,23 +274,38 @@ const BookingPage = () => {
         };
 
         try {
-          // Uncomment when EmailJS is configured
-          // await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+          // Check if EmailJS is configured
+          if (SERVICE_ID === 'YOUR_SERVICE_ID' || TEMPLATE_ID === 'YOUR_TEMPLATE_ID' || PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
+            // EmailJS not configured - show instructions
+            toast({
+              title: 'EmailJS Not Configured ⚠️',
+              description: 'Get free EmailJS account at emailjs.com to enable email confirmations',
+              duration: 5000,
+            });
+            
+            // Still confirm booking without email
+            setBookingConfirmed(true);
+          } else {
+            // EmailJS configured - send email
+            await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
 
-          toast({
-            title: 'Email Sent! ✉️',
-            description: 'Booking confirmation sent to your email',
-          });
+            toast({
+              title: 'Email Sent! ✉️',
+              description: 'Booking confirmation sent to your email',
+            });
 
-          setBookingConfirmed(true);
+            setBookingConfirmed(true);
+          }
         } catch (error) {
           console.error('EmailJS Error:', error);
           toast({
-            title: 'Email Not Configured',
-            description:
-              'Please configure EmailJS with your service ID, template ID, and public key in BookingPage.tsx',
+            title: 'Email Failed',
+            description: 'Booking confirmed but email could not be sent',
             variant: 'destructive',
           });
+          
+          // Still confirm booking even if email fails
+          setBookingConfirmed(true);
         }
       };
     } catch (error) {
@@ -343,7 +362,7 @@ const BookingPage = () => {
             <Button
               size="lg"
               onClick={() => navigate('/')}
-              className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
+              className="ocean-gradient hover:opacity-90 card-shadow"
             >
               Back to Home
             </Button>
@@ -420,7 +439,7 @@ const BookingPage = () => {
                       <p className="text-sm text-muted-foreground">
                         {selectedBuddy.age} years • {selectedBuddy.location}
                       </p>
-                      <Badge className="mt-1 bg-gradient-to-r from-primary to-accent">
+                      <Badge className="mt-1 ocean-gradient">
                         {selectedBuddy.matchPercentage}% Match
                       </Badge>
                     </div>
@@ -475,7 +494,7 @@ const BookingPage = () => {
 
                   <div className="space-y-3">
                     <Button
-                      className="w-full bg-gradient-to-r from-primary via-accent to-secondary hover:opacity-90"
+                      className="w-full ocean-gradient hover:opacity-90 card-shadow animate-bounce-in"
                       size="lg"
                       onClick={handleConfirmBooking}
                       disabled={
