@@ -21,7 +21,7 @@ import {
 import { useBookingStore } from '@/store/bookingStore';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
-import emailjs from '@emailjs/browser';
+import { supabase } from '@/integrations/supabase/client';
 import ProgressBar from '@/components/ProgressBar';
 
 const BOOKING_STEPS = [
@@ -230,7 +230,7 @@ const BookingPage = () => {
     }
   };
 
-  // Send Email with EmailJS
+  // Send Email with Supabase Edge Function
   const handleSendEmail = async () => {
     if (!userEmail || !userName) {
       toast({
@@ -244,77 +244,46 @@ const BookingPage = () => {
     setIsSendingEmail(true);
 
     try {
-      // EmailJS Configuration Instructions:
-      // 1. Sign up at https://www.emailjs.com/
-      // 2. Create an email service (Gmail, Outlook, etc.)
-      // 3. Create an email template with variables: {{to_name}}, {{trip_name}}, {{trip_duration}}, etc.
-      // 4. Get your Service ID, Template ID, and Public Key from the dashboard
-      // 5. Replace the placeholder values below
-      const SERVICE_ID = 'YOUR_SERVICE_ID'; // From EmailJS Dashboard → Email Services
-      const TEMPLATE_ID = 'YOUR_TEMPLATE_ID'; // From EmailJS Dashboard → Email Templates
-      const PUBLIC_KEY = 'YOUR_PUBLIC_KEY'; // From EmailJS Account page
+      const { data, error } = await supabase.functions.invoke('send-booking-email', {
+        body: {
+          userEmail,
+          userName,
+          trip: {
+            name: selectedTrip.name,
+            duration: selectedTrip.duration,
+            approximateCost: selectedTrip.approximateCost,
+            description: selectedTrip.description,
+            tripHighlights: selectedTrip.tripHighlights,
+          },
+          buddy: {
+            name: selectedBuddy.name,
+            age: selectedBuddy.age,
+            location: selectedBuddy.location,
+            bio: selectedBuddy.bio,
+            interests: selectedBuddy.interests,
+            matchPercentage: selectedBuddy.matchPercentage,
+          },
+        },
+      });
 
-      const pdfBlob = generatePDF();
+      if (error) throw error;
 
-      // Convert blob to base64 for EmailJS attachment
-      const reader = new FileReader();
-      reader.readAsDataURL(pdfBlob!);
-      reader.onloadend = async () => {
-        const base64data = reader.result;
+      toast({
+        title: 'Email Sent! ✉️',
+        description: 'Booking confirmation sent to your email',
+      });
 
-        const templateParams = {
-          to_name: userName,
-          to_email: userEmail,
-          trip_name: selectedTrip?.name,
-          trip_duration: selectedTrip?.duration,
-          trip_cost: selectedTrip?.approximateCost,
-          buddy_name: selectedBuddy?.name,
-          buddy_match: selectedBuddy?.matchPercentage,
-          // attachment: base64data, // Note: EmailJS free plan may not support attachments
-        };
-
-        try {
-          // Check if EmailJS is configured
-          if (SERVICE_ID === 'YOUR_SERVICE_ID' || TEMPLATE_ID === 'YOUR_TEMPLATE_ID' || PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
-            // EmailJS not configured - show instructions
-            toast({
-              title: 'EmailJS Not Configured ⚠️',
-              description: 'Get free EmailJS account at emailjs.com to enable email confirmations',
-              duration: 5000,
-            });
-            
-            // Still confirm booking without email
-            setBookingConfirmed(true);
-          } else {
-            // EmailJS configured - send email
-            await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
-
-            toast({
-              title: 'Email Sent! ✉️',
-              description: 'Booking confirmation sent to your email',
-            });
-
-            setBookingConfirmed(true);
-          }
-        } catch (error) {
-          console.error('EmailJS Error:', error);
-          toast({
-            title: 'Email Failed',
-            description: 'Booking confirmed but email could not be sent',
-            variant: 'destructive',
-          });
-          
-          // Still confirm booking even if email fails
-          setBookingConfirmed(true);
-        }
-      };
+      setBookingConfirmed(true);
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error('Failed to send email:', error);
       toast({
         title: 'Email Failed',
-        description: 'Unable to send confirmation email',
-        variant: 'destructive',
+        description: 'Booking confirmed but email could not be sent',
+        variant: 'default',
       });
+      
+      // Still confirm booking even if email fails
+      setBookingConfirmed(true);
     } finally {
       setIsSendingEmail(false);
     }
