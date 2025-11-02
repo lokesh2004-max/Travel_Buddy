@@ -41,6 +41,8 @@ const BookingPage = () => {
     user,
     quizAnswers,
     setCurrentStep,
+    setSelectedTrip,
+    setSelectedBuddy,
   } = useBookingStore();
 
   const [userEmail, setUserEmail] = useState(user?.email || '');
@@ -52,27 +54,47 @@ const BookingPage = () => {
   useEffect(() => {
     setCurrentStep(5);
 
-    // Redirect if essential data is missing
+    // Try to load from localStorage if Zustand store is empty
     if (!selectedTrip) {
-      toast({
-        title: 'No Trip Selected',
-        description: 'Please select a trip first',
-        variant: 'destructive',
-      });
-      navigate('/search-results');
-      return;
+      const storedTrip = localStorage.getItem('selectedDestination');
+      if (storedTrip) {
+        setSelectedTrip(JSON.parse(storedTrip));
+      } else {
+        toast({
+          title: 'No Trip Selected',
+          description: 'Please select a trip first',
+          variant: 'destructive',
+        });
+        navigate('/search-results');
+        return;
+      }
     }
 
     if (!selectedBuddy) {
-      toast({
-        title: 'No Buddy Selected',
-        description: 'Please select a travel buddy',
-        variant: 'destructive',
-      });
-      navigate('/buddy-match');
-      return;
+      const storedBuddy = localStorage.getItem('selectedBuddy');
+      if (storedBuddy) {
+        const parsedBuddy = JSON.parse(storedBuddy);
+        setSelectedBuddy({
+          id: parsedBuddy.id,
+          name: parsedBuddy.name,
+          image: parsedBuddy.image,
+          age: parsedBuddy.age,
+          location: parsedBuddy.location,
+          bio: parsedBuddy.bio,
+          interests: parsedBuddy.interests,
+          matchPercentage: parsedBuddy.matchPercentage,
+        });
+      } else {
+        toast({
+          title: 'No Buddy Selected',
+          description: 'Please select a travel buddy',
+          variant: 'destructive',
+        });
+        navigate('/buddy-match');
+        return;
+      }
     }
-  }, [selectedTrip, selectedBuddy, navigate, setCurrentStep, toast]);
+  }, [selectedTrip, selectedBuddy, navigate, setCurrentStep, toast, setSelectedTrip, setSelectedBuddy]);
 
   // Generate PDF Itinerary
   const generatePDF = (): Blob | null => {

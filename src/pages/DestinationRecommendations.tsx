@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ArrowLeft, MapPin, Star, Clock, Users, DollarSign, Sparkles, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useBookingStore } from '@/store/bookingStore';
+import ProgressBar from '@/components/ProgressBar';
 
 // Import destination images
 import goaImage from '@/assets/goa-beach.jpg';
@@ -44,9 +46,10 @@ interface Destination {
 
 const DestinationRecommendations = () => {
   const navigate = useNavigate();
+  const { setSelectedTrip, selectedBuddy } = useBookingStore();
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
-  const [selectedBuddy, setSelectedBuddy] = useState<any>(null);
+  const [localSelectedBuddy, setLocalSelectedBuddy] = useState<any>(null);
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -309,7 +312,7 @@ const DestinationRecommendations = () => {
     const parsedBuddy = JSON.parse(buddy);
 
     setUserAnswers(parsedAnswers);
-    setSelectedBuddy(parsedBuddy);
+    setLocalSelectedBuddy(parsedBuddy);
 
     // Calculate and rank destinations
     rankDestinations(parsedAnswers, parsedBuddy);
@@ -407,9 +410,10 @@ const DestinationRecommendations = () => {
   };
 
   const handleBookNow = () => {
-    // Store selected destination and navigate to booking page
+    // Store selected destination to both localStorage and Zustand store
     if (selectedDestination) {
       localStorage.setItem('selectedDestination', JSON.stringify(selectedDestination));
+      setSelectedTrip(selectedDestination);
       navigate('/booking');
     }
   };

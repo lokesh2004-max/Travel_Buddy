@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ArrowLeft, Mail, MapPin, Star, Heart, Calendar, Users, Globe, Languages, Plane, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useBookingStore } from '@/store/bookingStore';
 
 interface TravelBuddy {
   id: string;
@@ -22,6 +23,7 @@ interface TravelBuddy {
 
 const BuddyDetails = () => {
   const navigate = useNavigate();
+  const { setSelectedBuddy } = useBookingStore();
   const [buddy, setBuddy] = useState<TravelBuddy | null>(null);
 
   useEffect(() => {
@@ -32,8 +34,21 @@ const BuddyDetails = () => {
       return;
     }
     
-    setBuddy(JSON.parse(selectedBuddy));
-  }, [navigate]);
+    const parsedBuddy = JSON.parse(selectedBuddy);
+    setBuddy(parsedBuddy);
+    
+    // Sync with Zustand store
+    setSelectedBuddy({
+      id: parsedBuddy.id,
+      name: parsedBuddy.name,
+      image: parsedBuddy.image,
+      age: parsedBuddy.age,
+      location: parsedBuddy.location,
+      bio: parsedBuddy.bio,
+      interests: parsedBuddy.interests,
+      matchPercentage: parsedBuddy.matchPercentage,
+    });
+  }, [navigate, setSelectedBuddy]);
 
   const handleEmailClick = () => {
     if (buddy) {

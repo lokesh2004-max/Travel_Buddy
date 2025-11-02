@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, MapPin, Star, Mail } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useBookingStore } from '@/store/bookingStore';
 
 interface TravelBuddy {
   id: string;
@@ -20,6 +21,7 @@ interface TravelBuddy {
 
 const BuddyMatch = () => {
   const navigate = useNavigate();
+  const { setSelectedBuddy } = useBookingStore();
   const [matches, setMatches] = useState<TravelBuddy[]>([]);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
   const [showAll, setShowAll] = useState(false);
@@ -287,7 +289,18 @@ const BuddyMatch = () => {
   };
 
   const handleSelectBuddy = (buddy: TravelBuddy) => {
+    // Save to both localStorage and Zustand store
     localStorage.setItem('selectedBuddy', JSON.stringify(buddy));
+    setSelectedBuddy({
+      id: buddy.id,
+      name: buddy.name,
+      image: buddy.image,
+      age: buddy.age,
+      location: buddy.location,
+      bio: buddy.bio,
+      interests: buddy.interests,
+      matchPercentage: buddy.matchPercentage,
+    });
     navigate('/buddy-details');
   };
 
