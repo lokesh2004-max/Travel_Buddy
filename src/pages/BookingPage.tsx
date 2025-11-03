@@ -288,7 +288,29 @@ const BookingPage = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      // Check if Resend returned an error in the response
+      if (data?.data?.error) {
+        const resendError = data.data.error;
+        console.error('Resend error:', resendError);
+        
+        // Check if it's a domain verification error
+        if (resendError.name === 'validation_error' && resendError.message.includes('verify a domain')) {
+          toast({
+            title: 'Email Configuration Required',
+            description: 'Please verify your domain at resend.com/domains or use your verified email address',
+            variant: 'destructive',
+          });
+          setIsSendingEmail(false);
+          return;
+        }
+        
+        throw new Error(resendError.message);
+      }
 
       toast({
         title: 'Email Sent! ✉️',
@@ -300,8 +322,8 @@ const BookingPage = () => {
       console.error('Failed to send email:', error);
       toast({
         title: 'Email Failed',
-        description: 'Booking confirmed but email could not be sent',
-        variant: 'default',
+        description: error instanceof Error ? error.message : 'Booking confirmed but email could not be sent',
+        variant: 'destructive',
       });
       
       // Still confirm booking even if email fails
@@ -522,19 +544,24 @@ const BookingPage = () => {
                 </CardContent>
               </Card>
 
-              {/* EmailJS Configuration Notice */}
+              {/* Resend Configuration Notice */}
               <Card className="bg-muted/50">
                 <CardContent className="pt-6">
                   <div className="flex gap-2">
                     <Mail className="h-5 w-5 text-primary flex-shrink-0" />
                     <div className="text-sm">
-                      <p className="font-semibold mb-1">Email Configuration Required</p>
+                      <p className="font-semibold mb-1">Resend Test Mode</p>
                       <p className="text-muted-foreground text-xs">
-                        To enable email confirmations, configure EmailJS in{' '}
-                        <code className="bg-background px-1 rounded">
-                          BookingPage.tsx
-                        </code>{' '}
-                        with your service ID, template ID, and public key.
+                        You can only send emails to your verified email address (yrkkh2tmkoc@gmail.com).
+                        To send to any email, verify a domain at{' '}
+                        <a 
+                          href="https://resend.com/domains" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary underline hover:no-underline"
+                        >
+                          resend.com/domains
+                        </a>
                       </p>
                     </div>
                   </div>
