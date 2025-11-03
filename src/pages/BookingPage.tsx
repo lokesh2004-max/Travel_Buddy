@@ -105,8 +105,13 @@ const BookingPage = () => {
       const pageWidth = doc.internal.pageSize.getWidth();
       let yPosition = 20;
 
+      // Helper function to remove emojis and special characters
+      const cleanText = (text: string) => {
+        return text.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+      };
+
       // Header
-      doc.setFillColor(66, 135, 245);
+      doc.setFillColor(102, 126, 234);
       doc.rect(0, 0, pageWidth, 40, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(24);
@@ -117,19 +122,19 @@ const BookingPage = () => {
 
       // Trip Details Section
       doc.setFontSize(18);
-      doc.setTextColor(66, 135, 245);
+      doc.setTextColor(102, 126, 234);
       doc.text('Trip Details', 20, yPosition);
       yPosition += 10;
 
       doc.setFontSize(12);
       doc.setTextColor(0, 0, 0);
-      doc.text(`Destination: ${selectedTrip.emoji} ${selectedTrip.name}`, 20, yPosition);
+      doc.text(`Destination: ${cleanText(selectedTrip.name)}`, 20, yPosition);
       yPosition += 7;
       doc.text(`Duration: ${selectedTrip.duration}`, 20, yPosition);
       yPosition += 7;
-      doc.text(`Cost: ${selectedTrip.approximateCost}`, 20, yPosition);
+      doc.text(`Budget: ${selectedTrip.approximateCost}`, 20, yPosition);
       yPosition += 7;
-      doc.text(`Rating: ${selectedTrip.rating} ⭐`, 20, yPosition);
+      doc.text(`Rating: ${selectedTrip.rating} stars`, 20, yPosition);
       yPosition += 10;
 
       // Description
@@ -154,7 +159,7 @@ const BookingPage = () => {
 
       // Travel Buddy Section
       doc.setFontSize(18);
-      doc.setTextColor(66, 135, 245);
+      doc.setTextColor(102, 126, 234);
       doc.text('Your Travel Buddy', 20, yPosition);
       yPosition += 10;
 
@@ -162,7 +167,7 @@ const BookingPage = () => {
       doc.setTextColor(0, 0, 0);
       doc.text(`Name: ${selectedBuddy.name}`, 20, yPosition);
       yPosition += 7;
-      doc.text(`Age: ${selectedBuddy.age}`, 20, yPosition);
+      doc.text(`Age: ${selectedBuddy.age} years`, 20, yPosition);
       yPosition += 7;
       doc.text(`Location: ${selectedBuddy.location}`, 20, yPosition);
       yPosition += 7;
