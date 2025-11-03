@@ -225,11 +225,17 @@ const BookingPage = () => {
 
   // Download PDF
   const handleDownloadPDF = () => {
-    if (!selectedTrip) return;
+    if (!selectedTrip || !selectedBuddy) {
+      toast({
+        title: 'Missing Information',
+        description: 'Trip or buddy information is missing',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setIsGeneratingPDF(true);
     try {
-      const doc = new jsPDF();
       const pdfBlob = generatePDF();
 
       if (pdfBlob) {
@@ -247,6 +253,11 @@ const BookingPage = () => {
       }
     } catch (error) {
       console.error('Download error:', error);
+      toast({
+        title: 'PDF Generation Failed',
+        description: 'Unable to generate PDF. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsGeneratingPDF(false);
     }
