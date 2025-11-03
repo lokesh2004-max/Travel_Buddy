@@ -105,10 +105,19 @@ const BookingPage = () => {
       const pageWidth = doc.internal.pageSize.getWidth();
       let yPosition = 20;
 
-      // Helper function to remove emojis and special characters
-      const cleanText = (text: string) => {
-        return text.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
-      };
+      // Text helpers
+      const removeEmojis = (text: string) =>
+        text.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+      const asciiNormalize = (text: string) =>
+        text
+          .replace(/₹/g, 'INR ')
+          .replace(/[–—−]/g, '-')
+          .normalize('NFKD')
+          .replace(/[^\x00-\x7F]/g, '');
+      const sanitize = (text: string) => asciiNormalize(removeEmojis(text));
+
+      // Use a standard font with better kerning
+      doc.setFont('helvetica', 'normal');
 
       // Header
       doc.setFillColor(102, 126, 234);
@@ -128,18 +137,18 @@ const BookingPage = () => {
 
       doc.setFontSize(12);
       doc.setTextColor(0, 0, 0);
-      doc.text(`Destination: ${cleanText(selectedTrip.name)}`, 20, yPosition);
+      doc.text(`Destination: ${sanitize(selectedTrip.name)}`, 20, yPosition);
       yPosition += 7;
-      doc.text(`Duration: ${selectedTrip.duration}`, 20, yPosition);
+      doc.text(`Duration: ${sanitize(selectedTrip.duration)}`, 20, yPosition);
       yPosition += 7;
-      doc.text(`Budget: ${selectedTrip.approximateCost}`, 20, yPosition);
+      doc.text(`Budget: ${sanitize(selectedTrip.approximateCost)}`, 20, yPosition);
       yPosition += 7;
       doc.text(`Rating: ${selectedTrip.rating} stars`, 20, yPosition);
       yPosition += 10;
 
       // Description
       doc.setFontSize(10);
-      const splitDescription = doc.splitTextToSize(selectedTrip.description, pageWidth - 40);
+      const splitDescription = doc.splitTextToSize(sanitize(selectedTrip.description), pageWidth - 40);
       doc.text(splitDescription, 20, yPosition);
       yPosition += splitDescription.length * 5 + 10;
 
@@ -176,7 +185,7 @@ const BookingPage = () => {
 
       // Buddy Bio
       doc.setFontSize(10);
-      const splitBio = doc.splitTextToSize(selectedBuddy.bio, pageWidth - 40);
+      const splitBio = doc.splitTextToSize(sanitize(selectedBuddy.bio), pageWidth - 40);
       doc.text(splitBio, 20, yPosition);
       yPosition += splitBio.length * 5 + 8;
 
@@ -185,7 +194,7 @@ const BookingPage = () => {
       doc.text('Interests:', 20, yPosition);
       yPosition += 7;
       doc.setFontSize(10);
-      doc.text(selectedBuddy.interests.join(', '), 25, yPosition);
+      doc.text(sanitize(selectedBuddy.interests.join(", ")), 25, yPosition);
       yPosition += 10;
 
       // Customer Details
