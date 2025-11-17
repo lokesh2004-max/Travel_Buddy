@@ -67,21 +67,13 @@ export const useBookingData = () => {
   }, [selectedTrip, selectedBuddy, navigate, setCurrentStep, setSelectedTrip, setSelectedBuddy]);
 
   const redirectToSearch = () => {
-    toast({
-      title: 'No Trip Selected',
-      description: 'Please select a trip first',
-      variant: 'destructive',
-    });
-    navigate('/search-results');
+    // Silent redirect for new visitors - don't show error toast
+    navigate('/');
   };
 
   const redirectToBuddy = () => {
-    toast({
-      title: 'No Buddy Selected',
-      description: 'Please select a travel buddy',
-      variant: 'destructive',
-    });
-    navigate('/buddy-match');
+    // Silent redirect for new visitors - don't show error toast
+    navigate('/');
   };
 
   return {

@@ -58,14 +58,16 @@ const BookingPage = () => {
     if (!selectedTrip) {
       const storedTrip = localStorage.getItem('selectedDestination');
       if (storedTrip) {
-        setSelectedTrip(JSON.parse(storedTrip));
+        try {
+          setSelectedTrip(JSON.parse(storedTrip));
+        } catch (error) {
+          console.error('Failed to parse trip data:', error);
+          navigate('/');
+          return;
+        }
       } else {
-        toast({
-          title: 'No Trip Selected',
-          description: 'Please select a trip first',
-          variant: 'destructive',
-        });
-        navigate('/search-results');
+        // Silent redirect for new visitors
+        navigate('/');
         return;
       }
     }
@@ -73,28 +75,30 @@ const BookingPage = () => {
     if (!selectedBuddy) {
       const storedBuddy = localStorage.getItem('selectedBuddy');
       if (storedBuddy) {
-        const parsedBuddy = JSON.parse(storedBuddy);
-        setSelectedBuddy({
-          id: parsedBuddy.id,
-          name: parsedBuddy.name,
-          image: parsedBuddy.image,
-          age: parsedBuddy.age,
-          location: parsedBuddy.location,
-          bio: parsedBuddy.bio,
-          interests: parsedBuddy.interests,
-          matchPercentage: parsedBuddy.matchPercentage,
-        });
+        try {
+          const parsedBuddy = JSON.parse(storedBuddy);
+          setSelectedBuddy({
+            id: parsedBuddy.id,
+            name: parsedBuddy.name,
+            image: parsedBuddy.image,
+            age: parsedBuddy.age,
+            location: parsedBuddy.location,
+            bio: parsedBuddy.bio,
+            interests: parsedBuddy.interests,
+            matchPercentage: parsedBuddy.matchPercentage,
+          });
+        } catch (error) {
+          console.error('Failed to parse buddy data:', error);
+          navigate('/');
+          return;
+        }
       } else {
-        toast({
-          title: 'No Buddy Selected',
-          description: 'Please select a travel buddy',
-          variant: 'destructive',
-        });
-        navigate('/buddy-match');
+        // Silent redirect for new visitors
+        navigate('/');
         return;
       }
     }
-  }, [selectedTrip, selectedBuddy, navigate, setCurrentStep, toast, setSelectedTrip, setSelectedBuddy]);
+  }, [selectedTrip, selectedBuddy, navigate, setCurrentStep, setSelectedTrip, setSelectedBuddy]);
 
   // Generate PDF Itinerary
   const generatePDF = (): Blob | null => {
