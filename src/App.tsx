@@ -11,6 +11,7 @@ import DestinationRecommendations from "./pages/DestinationRecommendations";
 import SwipeMatch from "./pages/SwipeMatch";
 import SearchResults from "./pages/SearchResults";
 import BookingPage from "./pages/BookingPage";
+import MessagesPage from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/swipe-match" element={<SwipeMatch />} />
           <Route path="/search-results" element={<SearchResults />} />
           <Route path="/booking" element={<BookingPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
