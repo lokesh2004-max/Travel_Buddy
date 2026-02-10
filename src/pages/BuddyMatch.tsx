@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, MapPin, Star, Mail } from 'lucide-react';
+import { ArrowLeft, MapPin, Star, Mail, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useBookingStore } from '@/store/bookingStore';
 
@@ -384,13 +384,27 @@ const BuddyMatch = () => {
                     </div>
                   </div>
                   
-                  <Button 
-                    onClick={() => handleSelectBuddy(buddy)}
-                    className="w-full ocean-gradient hover:opacity-90"
-                  >
-                    <Mail className="h-4 w-4 mr-2" />
-                    Select Buddy
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={() => handleSelectBuddy(buddy)}
+                      className="flex-1 ocean-gradient hover:opacity-90"
+                    >
+                      <Mail className="h-4 w-4 mr-2" />
+                      Select Buddy
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/messages');
+                      }}
+                      aria-label={`Message ${buddy.name}`}
+                      className="border-primary text-primary hover:bg-primary/10"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
               ))}
