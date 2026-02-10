@@ -6,6 +6,7 @@ import TravelBuddySwipeCard from '@/components/TravelBuddySwipeCard';
 import { useBookingStore } from '@/store/bookingStore';
 import { useToast } from '@/hooks/use-toast';
 import ProgressBar from '@/components/ProgressBar';
+import { supabase } from '@/integrations/supabase/client';
 
 const BOOKING_STEPS = [
   { number: 1, name: 'Search', description: 'Find trips' },
@@ -18,7 +19,7 @@ const BOOKING_STEPS = [
 // Mock data for travel buddies
 const mockBuddies = [
   {
-    id: '1',
+    id: 'a0000000-0000-0000-0000-000000000001',
     name: 'Alex Thompson',
     image: '🧑',
     age: 28,
@@ -28,7 +29,7 @@ const mockBuddies = [
     matchPercentage: 95,
   },
   {
-    id: '2',
+    id: 'a0000000-0000-0000-0000-000000000002',
     name: 'Maya Patel',
     image: '👩',
     age: 26,
@@ -38,7 +39,7 @@ const mockBuddies = [
     matchPercentage: 88,
   },
   {
-    id: '3',
+    id: 'a0000000-0000-0000-0000-000000000003',
     name: 'Jordan Lee',
     image: '🧑‍🦱',
     age: 30,
@@ -48,7 +49,7 @@ const mockBuddies = [
     matchPercentage: 92,
   },
   {
-    id: '4',
+    id: 'a0000000-0000-0000-0000-000000000004',
     name: 'Sofia Rodriguez',
     image: '👩‍🦰',
     age: 27,
@@ -58,7 +59,7 @@ const mockBuddies = [
     matchPercentage: 85,
   },
   {
-    id: '5',
+    id: 'a0000000-0000-0000-0000-000000000005',
     name: 'Chris Johnson',
     image: '🧔',
     age: 32,
@@ -68,7 +69,7 @@ const mockBuddies = [
     matchPercentage: 90,
   },
   {
-    id: '6',
+    id: 'a0000000-0000-0000-0000-000000000006',
     name: 'Emma Wilson',
     image: '👱‍♀️',
     age: 25,
@@ -90,13 +91,24 @@ const SwipeMatch = () => {
     setCurrentStep(4);
   }, [setCurrentStep]);
 
-  const handleSwipeRight = (buddy: typeof mockBuddies[0]) => {
+  const handleSwipeRight = async (buddy: typeof mockBuddies[0]) => {
     setConnectedBuddies(prev => [...prev, buddy]);
     setSelectedBuddy(buddy as any);
     toast({
       title: `Connected with ${buddy.name}! 🎉`,
-      description: `${buddy.matchPercentage}% match`,
+      description: `${buddy.matchPercentage}% match - You can now chat in Messages!`,
     });
+
+    // Create buddy_match record in Supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('buddy_matches').insert({
+        user1_id: user.id,
+        user2_id: buddy.id,
+        trip_id: selectedTrip?.name || 'general',
+        status: 'accepted',
+      });
+    }
     
     if (selectedTrip) {
       setTimeout(() => navigate('/booking'), 1000);
