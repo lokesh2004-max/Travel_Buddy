@@ -7,6 +7,24 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+// Fallback names for mock buddies without Supabase profiles
+const MOCK_BUDDY_NAMES: Record<string, { name: string; location: string }> = {
+  'a0000000-0000-0000-0000-000000000001': { name: 'Priya Sharma', location: 'Delhi' },
+  'a0000000-0000-0000-0000-000000000002': { name: 'Anmol Verma', location: 'Arunachal Pradesh' },
+  'a0000000-0000-0000-0000-000000000003': { name: 'Diksha Upadhyay', location: 'Assam' },
+  'a0000000-0000-0000-0000-000000000004': { name: 'Aarav Singh', location: 'Karnal' },
+  'a0000000-0000-0000-0000-000000000005': { name: 'Kavya Menon', location: 'Srinagar' },
+  'a0000000-0000-0000-0000-000000000006': { name: 'Rohan Kapoor', location: 'Bangalore' },
+  'a0000000-0000-0000-0000-000000000007': { name: 'Sneha Reddy', location: 'Hyderabad' },
+  'a0000000-0000-0000-0000-000000000008': { name: 'Arjun Malhotra', location: 'Mumbai' },
+  'a0000000-0000-0000-0000-000000000009': { name: 'Ishita Bose', location: 'Kolkata' },
+  'a0000000-0000-0000-0000-000000000010': { name: 'Vikram Nair', location: 'Kerala' },
+  'a0000000-0000-0000-0000-000000000011': { name: 'Aisha Patel', location: 'Goa' },
+  'a0000000-0000-0000-0000-000000000012': { name: 'Karan Thakur', location: 'Himachal Pradesh' },
+  'a0000000-0000-0000-0000-000000000013': { name: 'Meera Desai', location: 'Pune' },
+  'a0000000-0000-0000-0000-000000000014': { name: 'Siddharth Gupta', location: 'Rajasthan' },
+  'a0000000-0000-0000-0000-000000000015': { name: 'Tanvi Rao', location: 'Chennai' },
+};
 export interface BuddyMatch {
   id: string;
   user1_id: string;
@@ -75,13 +93,23 @@ export const useBuddyMatches = () => {
             .eq('id', buddyId)
             .single();
 
-          // Cast status to the expected union type
+          // Fallback for mock buddies without Supabase profiles
+          const mockInfo = MOCK_BUDDY_NAMES[buddyId];
+          const buddyProfile = profileData || (mockInfo ? {
+            id: buddyId,
+            full_name: mockInfo.name,
+            avatar_url: null,
+            bio: null,
+            interests: null,
+            location: mockInfo.location,
+          } : null);
+
           const status = match.status as 'pending' | 'accepted' | 'rejected';
 
           return {
             ...match,
             status,
-            buddy_profile: profileData,
+            buddy_profile: buddyProfile,
           };
         })
       );

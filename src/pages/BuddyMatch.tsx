@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, MapPin, Star, Mail, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useBookingStore } from '@/store/bookingStore';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface TravelBuddy {
   id: string;
@@ -21,6 +23,7 @@ interface TravelBuddy {
 
 const BuddyMatch = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { setSelectedBuddy } = useBookingStore();
   const [matches, setMatches] = useState<TravelBuddy[]>([]);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
@@ -45,7 +48,7 @@ const BuddyMatch = () => {
     // Mock travel buddies with different personalities
     const buddies: TravelBuddy[] = [
       {
-        id: '1',
+        id: 'a0000000-0000-0000-0000-000000000001',
         name: 'Priya Sharma',
         image: '👩‍🦰',
         age: 24,
@@ -57,7 +60,7 @@ const BuddyMatch = () => {
         email: 'priya.sharma@email.com'
       },
       {
-        id: '2',
+        id: 'a0000000-0000-0000-0000-000000000002',
         name: 'Anmol Verma',
         image: '👨‍🏫',
         age: 26,
@@ -69,7 +72,7 @@ const BuddyMatch = () => {
         email: 'anmol.verma@email.com'
       },
       {
-        id: '3',
+        id: 'a0000000-0000-0000-0000-000000000003',
         name: 'Diksha Upadhyay',
         image: '👩‍💼',
         age: 28,
@@ -81,7 +84,7 @@ const BuddyMatch = () => {
         email: 'diksha.upadhyay@email.com'
       },
       {
-        id: '4',
+        id: 'a0000000-0000-0000-0000-000000000004',
         name: 'Aarav Singh',
         image: '🧑‍🎤',
         age: 23,
@@ -93,7 +96,7 @@ const BuddyMatch = () => {
         email: 'aarav.singh@email.com'
       },
       {
-        id: '5',
+        id: 'a0000000-0000-0000-0000-000000000005',
         name: 'Kavya Menon',
         image: '👩‍🎨',
         age: 25,
@@ -105,7 +108,7 @@ const BuddyMatch = () => {
         email: 'kavya.menon@email.com'
       },
       {
-        id: '6',
+        id: 'a0000000-0000-0000-0000-000000000006',
         name: 'Rohan Kapoor',
         image: '👨‍💻',
         age: 27,
@@ -117,7 +120,7 @@ const BuddyMatch = () => {
         email: 'rohan.kapoor@email.com'
       },
       {
-        id: '7',
+        id: 'a0000000-0000-0000-0000-000000000007',
         name: 'Sneha Reddy',
         image: '👩‍🔬',
         age: 29,
@@ -129,7 +132,7 @@ const BuddyMatch = () => {
         email: 'sneha.reddy@email.com'
       },
       {
-        id: '8',
+        id: 'a0000000-0000-0000-0000-000000000008',
         name: 'Arjun Malhotra',
         image: '👨‍🍳',
         age: 30,
@@ -141,7 +144,7 @@ const BuddyMatch = () => {
         email: 'arjun.malhotra@email.com'
       },
       {
-        id: '9',
+        id: 'a0000000-0000-0000-0000-000000000009',
         name: 'Ishita Bose',
         image: '👩‍🎓',
         age: 22,
@@ -153,7 +156,7 @@ const BuddyMatch = () => {
         email: 'ishita.bose@email.com'
       },
       {
-        id: '10',
+        id: 'a0000000-0000-0000-0000-000000000010',
         name: 'Vikram Nair',
         image: '👨‍✈️',
         age: 31,
@@ -165,7 +168,7 @@ const BuddyMatch = () => {
         email: 'vikram.nair@email.com'
       },
       {
-        id: '11',
+        id: 'a0000000-0000-0000-0000-000000000011',
         name: 'Aisha Patel',
         image: '👩‍🎤',
         age: 26,
@@ -177,7 +180,7 @@ const BuddyMatch = () => {
         email: 'aisha.patel@email.com'
       },
       {
-        id: '12',
+        id: 'a0000000-0000-0000-0000-000000000012',
         name: 'Karan Thakur',
         image: '👨‍🎨',
         age: 28,
@@ -189,7 +192,7 @@ const BuddyMatch = () => {
         email: 'karan.thakur@email.com'
       },
       {
-        id: '13',
+        id: 'a0000000-0000-0000-0000-000000000013',
         name: 'Meera Desai',
         image: '👩‍⚕️',
         age: 33,
@@ -201,7 +204,7 @@ const BuddyMatch = () => {
         email: 'meera.desai@email.com'
       },
       {
-        id: '14',
+        id: 'a0000000-0000-0000-0000-000000000014',
         name: 'Siddharth Gupta',
         image: '👨‍🎬',
         age: 25,
@@ -213,7 +216,7 @@ const BuddyMatch = () => {
         email: 'siddharth.gupta@email.com'
       },
       {
-        id: '15',
+        id: 'a0000000-0000-0000-0000-000000000015',
         name: 'Tanvi Rao',
         image: '👩‍🏫',
         age: 24,
@@ -288,7 +291,7 @@ const BuddyMatch = () => {
     setMatches(sortedMatches);
   };
 
-  const handleSelectBuddy = (buddy: TravelBuddy) => {
+  const handleSelectBuddy = async (buddy: TravelBuddy) => {
     // Save to both localStorage and Zustand store
     localStorage.setItem('selectedBuddy', JSON.stringify(buddy));
     setSelectedBuddy({
@@ -301,6 +304,23 @@ const BuddyMatch = () => {
       interests: buddy.interests,
       matchPercentage: buddy.matchPercentage,
     });
+
+    // Create buddy_match record in Supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { error } = await supabase.from('buddy_matches').insert({
+        user1_id: user.id,
+        user2_id: buddy.id,
+        trip_id: 'general',
+        status: 'accepted',
+      });
+      if (error) {
+        console.error('Error creating buddy match:', error);
+      } else {
+        toast({ title: `Matched with ${buddy.name}! 🎉`, description: 'You can now chat in Messages' });
+      }
+    }
+
     navigate('/buddy-details');
   };
 
