@@ -490,7 +490,7 @@ const Home = () => {
                 </div>
                 <div className="flex items-center space-x-3">
                   <Mail size={18} />
-                  <span>hello@travelbuddy.in</span>
+                  <span>lokesh@travelbuddy.in</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Globe size={18} />
@@ -502,7 +502,7 @@ const Home = () => {
 
           <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2024 Travel Buddy. All rights reserved. Made with ❤️ in India
+              © 2026 Travel Buddy. All rights reserved. Made with ❤️ in India
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0 text-sm text-gray-400">
               <button className="hover:text-white transition-colors">Privacy Policy</button>
