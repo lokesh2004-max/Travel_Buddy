@@ -24,25 +24,20 @@ interface TravelBuddy {
 const BuddyMatch = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { setSelectedBuddy } = useBookingStore();
+  const { setSelectedBuddy, quizAnswers } = useBookingStore();
   const [matches, setMatches] = useState<TravelBuddy[]>([]);
-  const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
-    // Get user answers from localStorage
-    const answers = localStorage.getItem('queeraAnswers');
-    if (!answers) {
+    // Check if quiz was completed via Zustand store
+    if (!quizAnswers || Object.keys(quizAnswers).length === 0) {
       navigate('/queera');
       return;
     }
     
-    const parsedAnswers = JSON.parse(answers);
-    setUserAnswers(parsedAnswers);
-    
     // Generate matches based on answers (mock data for demo)
-    generateMatches(parsedAnswers);
-  }, [navigate]);
+    generateMatches(quizAnswers as Record<string, string>);
+  }, [navigate, quizAnswers]);
 
   const generateMatches = (answers: Record<string, string>) => {
     // Mock travel buddies with different personalities
