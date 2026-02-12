@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, Users, Shield, Star, Menu, X, Phone, Mail, Globe, ChevronDown, Play } from 'lucide-react';
+import { Search, MapPin, Users, Shield, Star, Menu, X, Phone, Mail, Globe, ChevronDown, Play, MessageCircle } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 import heroBackground from '@/assets/hero-background.webp';
 
@@ -116,6 +116,10 @@ const Home = () => {
               <button onClick={() => scrollToSection('faq')} className="text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium">
                 FAQ
               </button>
+              <button onClick={() => navigate('/messages')} className="text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium flex items-center gap-1">
+                <MessageCircle size={18} />
+                Messages
+              </button>
               <button 
                 onClick={() => setIsAuthModalOpen(true)}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
@@ -142,6 +146,10 @@ const Home = () => {
                 <button onClick={() => scrollToSection('how')} className="text-left text-gray-700 hover:text-blue-600 py-2">How It Works</button>
                 <button onClick={() => scrollToSection('destinations')} className="text-left text-gray-700 hover:text-blue-600 py-2">Destinations</button>
                 <button onClick={() => scrollToSection('faq')} className="text-left text-gray-700 hover:text-blue-600 py-2">FAQ</button>
+                <button onClick={() => { navigate('/messages'); setIsMenuOpen(false); }} className="text-left text-gray-700 hover:text-blue-600 py-2 flex items-center gap-2">
+                  <MessageCircle size={18} />
+                  Messages
+                </button>
                 <button 
                   onClick={() => setIsAuthModalOpen(true)}
                   className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full font-semibold w-full"
