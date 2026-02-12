@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, Users, Shield, Star, Menu, X, Phone, Mail, Globe, ChevronDown, Play, MessageCircle } from 'lucide-react';
+import { Search, MapPin, Users, Shield, Star, Menu, X, Phone, Mail, Globe, ChevronDown, Play, MessageCircle, MessageSquareHeart } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
+import FeedbackModal from '@/components/feedback/FeedbackModal';
 import heroBackground from '@/assets/hero-background.webp';
 
 const Home = () => {
@@ -11,6 +12,7 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -512,7 +514,14 @@ const Home = () => {
             <p className="text-gray-400 text-sm">
               © 2026 Travel Buddy. All rights reserved. Made with ❤️ in India
             </p>
-            <div className="flex space-x-6 mt-4 md:mt-0 text-sm text-gray-400">
+            <div className="flex items-center space-x-6 mt-4 md:mt-0 text-sm text-gray-400">
+              <button
+                onClick={() => setIsFeedbackOpen(true)}
+                className="flex items-center gap-1.5 hover:text-white transition-colors"
+              >
+                <MessageSquareHeart size={16} />
+                Give Feedback
+              </button>
               <button className="hover:text-white transition-colors">Privacy Policy</button>
               <button className="hover:text-white transition-colors">Terms of Service</button>
               <button className="hover:text-white transition-colors">Cookie Policy</button>
@@ -526,6 +535,9 @@ const Home = () => {
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
       />
+
+      {/* Feedback Modal */}
+      <FeedbackModal open={isFeedbackOpen} onOpenChange={setIsFeedbackOpen} />
     </div>
   );
 };
