@@ -71,7 +71,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           description: "Your account has been created successfully. Let's find your perfect travel companion!",
         });
         onClose();
-        navigate('/queera');
+        navigate('/dashboard');
       }
     } catch (error: any) {
       if (error instanceof z.ZodError) {
@@ -116,7 +116,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           description: "Ready for your next adventure?",
         });
         onClose();
-        navigate('/queera');
+        navigate('/dashboard');
       }
     } catch (error: any) {
       if (error instanceof z.ZodError) {

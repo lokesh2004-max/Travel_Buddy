@@ -109,6 +109,33 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -139,6 +166,39 @@ export type Database = {
           interests?: string[] | null
           location?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      trips: {
+        Row: {
+          buddy_id: string | null
+          created_at: string
+          destination: string
+          end_date: string | null
+          id: string
+          start_date: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          buddy_id?: string | null
+          created_at?: string
+          destination: string
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          buddy_id?: string | null
+          created_at?: string
+          destination?: string
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: string
+          user_id?: string
         }
         Relationships: []
       }
