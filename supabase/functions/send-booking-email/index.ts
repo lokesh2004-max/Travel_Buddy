@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.2";
 import { Resend } from "npm:resend@4.0.0";
 import React from 'npm:react@18.3.1';
 import { renderAsync } from 'npm:@react-email/components@0.0.22';
@@ -38,11 +39,44 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // --- Authentication Check ---
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    const userEmail_auth = claimsData.claims.email as string | undefined;
+
     const { userEmail, userName, trip, buddy }: BookingEmailRequest = await req.json();
+
+    // --- Email ownership validation ---
+    if (userEmail_auth && userEmail.toLowerCase() !== userEmail_auth.toLowerCase()) {
+      return new Response(JSON.stringify({ error: 'Email does not match authenticated user' }), {
+        status: 403,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
     console.log("Sending booking confirmation email to:", userEmail);
 
-    // Render the React Email template
     const html = await renderAsync(
       React.createElement(BookingConfirmationEmail, {
         userName,
