@@ -60,8 +60,14 @@ const FeedbackModal = ({ open, onOpenChange }: FeedbackModalProps) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
+      if (!user) {
+        toast({ title: 'Please sign in to submit feedback', variant: 'destructive' });
+        setSubmitting(false);
+        return;
+      }
+
       const { error } = await supabase.from('feedback').insert({
-        user_id: user?.id ?? null,
+        user_id: user.id,
         name: name.trim(),
         email: email.trim().toLowerCase(),
         rating,
