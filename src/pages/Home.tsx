@@ -236,8 +236,10 @@ const Home = () => {
                   { img: categoryCamping, label: 'Camping' },
                 ].map((cat, i) => (
                   <div key={i} className="bg-gray-50 rounded-xl overflow-hidden text-center">
-                    <img src={cat.img} alt={cat.label} className="w-full h-16 object-cover" />
-                    <div className="text-xs text-gray-600 py-2">{cat.label}</div>
+                    <div className="h-20 overflow-hidden">
+                      <img src={cat.img} alt={cat.label} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="text-xs text-gray-600 py-2 font-medium">{cat.label}</div>
                   </div>
                 ))}
               </div>
