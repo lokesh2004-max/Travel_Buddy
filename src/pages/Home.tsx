@@ -4,6 +4,9 @@ import { Search, MapPin, Users, Shield, Star, Menu, X, Phone, Mail, Globe, Chevr
 import { AuthModal } from '@/components/AuthModal';
 import FeedbackModal from '@/components/feedback/FeedbackModal';
 import heroBackground from '@/assets/hero-background.webp';
+import categoryMountain from '@/assets/category-mountain.jpg';
+import categoryForest from '@/assets/category-forest.jpg';
+import categoryCamping from '@/assets/category-camping.jpg';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -227,10 +230,14 @@ const Home = () => {
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-4">
-                {['🏔️', '🌲', '🏕️'].map((emoji, i) => (
-                  <div key={i} className="bg-gray-50 rounded-xl p-4 text-center">
-                    <div className="text-2xl mb-2">{emoji}</div>
-                    <div className="text-xs text-gray-600">Adventure</div>
+                {[
+                  { img: categoryMountain, label: 'Trekking' },
+                  { img: categoryForest, label: 'Forest' },
+                  { img: categoryCamping, label: 'Camping' },
+                ].map((cat, i) => (
+                  <div key={i} className="bg-gray-50 rounded-xl overflow-hidden text-center">
+                    <img src={cat.img} alt={cat.label} className="w-full h-16 object-cover" />
+                    <div className="text-xs text-gray-600 py-2">{cat.label}</div>
                   </div>
                 ))}
               </div>
