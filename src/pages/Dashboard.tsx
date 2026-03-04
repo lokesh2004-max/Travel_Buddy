@@ -3,15 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import {
-  Users, MapPin, MessageCircle, Globe, Bell, Zap,
+  Users, MessageCircle, Globe, Bell, Zap,
   Calendar, ArrowRight, UserPlus, PlaneTakeoff, Pencil,
   LogOut, Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ProfileCompletionChecklist from '@/components/ProfileCompletionChecklist';
 
 interface Profile {
   id: string;
@@ -20,6 +20,9 @@ interface Profile {
   bio: string | null;
   interests: string[] | null;
   location: string | null;
+  languages?: string[] | null;
+  travel_style?: string | null;
+  budget_range?: string | null;
 }
 
 interface Match {
@@ -125,15 +128,6 @@ const Dashboard = () => {
     }
   };
 
-  const profileCompletion = (() => {
-    if (!profile) return 0;
-    let score = 0;
-    if (profile.avatar_url) score += 25;
-    if (profile.bio) score += 25;
-    if (profile.interests && profile.interests.length > 0) score += 25;
-    if (profile.location) score += 25;
-    return score;
-  })();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -194,19 +188,10 @@ const Dashboard = () => {
           <p className="text-gray-500 mt-1">Here's what's happening with your travels</p>
         </div>
 
-        {/* Profile Completion */}
-        <Card className="mb-8 border-none shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-          <CardContent className="py-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg mb-1">Profile Completion</h3>
-                <p className="text-blue-100 text-sm mb-3">Complete your profile to get better buddy matches</p>
-                <Progress value={profileCompletion} className="h-2.5 bg-white/20 [&>div]:bg-white" />
-              </div>
-              <span className="text-3xl font-bold">{profileCompletion}%</span>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Profile Completion Checklist */}
+        <div className="mb-8">
+          <ProfileCompletionChecklist profile={profile} />
+        </div>
 
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -368,7 +353,7 @@ const Dashboard = () => {
                   <MessageCircle size={22} className="text-purple-600" />
                   <span className="text-xs">Messages</span>
                 </Button>
-                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-orange-50 hover:border-orange-200" onClick={() => {}}>
+                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-orange-50 hover:border-orange-200" onClick={() => navigate('/profile')}>
                   <Pencil size={22} className="text-orange-600" />
                   <span className="text-xs">Edit Profile</span>
                 </Button>
