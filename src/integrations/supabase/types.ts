@@ -140,31 +140,40 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          budget_range: string | null
           created_at: string
           full_name: string | null
           id: string
           interests: string[] | null
+          languages: string[] | null
           location: string | null
+          travel_style: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          budget_range?: string | null
           created_at?: string
           full_name?: string | null
           id: string
           interests?: string[] | null
+          languages?: string[] | null
           location?: string | null
+          travel_style?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          budget_range?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
           interests?: string[] | null
+          languages?: string[] | null
           location?: string | null
+          travel_style?: string | null
           updated_at?: string
         }
         Relationships: []

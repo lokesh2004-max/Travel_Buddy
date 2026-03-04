@@ -1,0 +1,4 @@
+ALTER TABLE public.profiles 
+  ADD COLUMN IF NOT EXISTS languages text[] DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS travel_style text DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS budget_range text DEFAULT NULL;
