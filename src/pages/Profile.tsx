@@ -147,7 +147,9 @@ const Profile = () => {
 
       setForm(prev => ({ ...prev, avatar_url }));
       toast({ title: 'Profile saved!', description: 'Your profile has been updated successfully.' });
+      navigate('/dashboard');
     } catch (err: any) {
+      console.error('Profile save error:', err);
       toast({ title: 'Save failed', description: err.message, variant: 'destructive' });
     } finally {
       setSaving(false);
