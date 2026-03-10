@@ -130,7 +130,8 @@ const Profile = () => {
         }
       }
 
-      const { error } = await supabase.from('profiles').update({
+      const { error } = await supabase.from('profiles').upsert({
+        id: userId,
         full_name: form.full_name,
         bio: form.bio,
         location: form.location,
@@ -140,13 +141,15 @@ const Profile = () => {
         budget_range: form.budget_range,
         avatar_url,
         updated_at: new Date().toISOString(),
-      } as any).eq('id', userId);
+      } as any);
 
       if (error) throw error;
 
       setForm(prev => ({ ...prev, avatar_url }));
       toast({ title: 'Profile saved!', description: 'Your profile has been updated successfully.' });
+      navigate('/dashboard');
     } catch (err: any) {
+      console.error('Profile save error:', err);
       toast({ title: 'Save failed', description: err.message, variant: 'destructive' });
     } finally {
       setSaving(false);

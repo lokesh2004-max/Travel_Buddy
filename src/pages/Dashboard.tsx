@@ -97,7 +97,7 @@ const Dashboard = () => {
     setLoading(true);
     try {
       const [profileRes, matchesRes, tripsRes, notifRes, messagesRes] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', userId).single(),
+        supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
         supabase.from('buddy_matches').select('*').or(`user1_id.eq.${userId},user2_id.eq.${userId}`).eq('status', 'accepted').order('created_at', { ascending: false }).limit(5),
         supabase.from('trips').select('*').eq('user_id', userId).neq('status', 'completed').order('start_date', { ascending: true }).limit(5),
         supabase.from('notifications').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
