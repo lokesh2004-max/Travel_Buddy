@@ -49,14 +49,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      // Validate form data
       const validatedData = signUpSchema.parse(formData);
 
       const { data, error } = await supabase.auth.signUp({
         email: validatedData.email,
         password: validatedData.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
             full_name: validatedData.fullName,
           }
@@ -66,9 +65,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       if (error) throw error;
 
       if (data.user) {
+        // Upsert profile immediately so dashboard always finds one
+        const { error: profileError } = await supabase.from('profiles').upsert({
+          id: data.user.id,
+          full_name: validatedData.fullName,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'id' });
+
+        if (profileError) {
+          console.error('Profile upsert error during signup:', profileError);
+        }
+
         toast({
           title: "Welcome to Travel Buddy! 🎉",
-          description: "Your account has been created successfully. Let's find your perfect travel companion!",
+          description: "Your account has been created. Let's find your perfect travel companion!",
         });
         onClose();
         navigate('/dashboard');
@@ -81,6 +91,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           variant: "destructive",
         });
       } else {
+        console.error('Signup error:', error);
         toast({
           title: "Signup failed",
           description: error.message,
@@ -97,7 +108,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      // Validate form data
       const validatedData = signInSchema.parse({
         email: formData.email,
         password: formData.password
@@ -108,9 +118,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         password: validatedData.password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Sign in error:', error);
+        // Provide a clear, user-friendly message
+        const friendlyMessage =
+          error.message.includes('Invalid login credentials')
+            ? 'Invalid email or password. Please check your credentials and try again.'
+            : error.message;
+        throw new Error(friendlyMessage);
+      }
 
       if (data.user) {
+        // Ensure profile row exists for this user (safety net)
+        await supabase.from('profiles').upsert({
+          id: data.user.id,
+          full_name: data.user.user_metadata?.full_name ?? null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'id' });
+
         toast({
           title: "Welcome back! 🌍",
           description: "Ready for your next adventure?",
