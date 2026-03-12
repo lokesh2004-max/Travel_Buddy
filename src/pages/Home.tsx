@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Users, Shield, Star, Menu, X, Phone, Mail, Globe, ChevronDown, Play, MessageSquareHeart } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 import FeedbackModal from '@/components/feedback/FeedbackModal';
+import { supabase } from '@/integrations/supabase/client';
 import heroBackground from '@/assets/hero-background.webp';
 import categoryMountain from '@/assets/category-mountain.jpg';
 import categoryForest from '@/assets/category-forest.jpg';
@@ -16,6 +17,17 @@ const Home = () => {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+
+  // Redirect already-logged-in users to dashboard
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) navigate('/dashboard');
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) navigate('/dashboard');
+    });
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {

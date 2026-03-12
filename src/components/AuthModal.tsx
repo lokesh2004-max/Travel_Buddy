@@ -108,7 +108,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      // Validate form data
       const validatedData = signInSchema.parse({
         email: formData.email,
         password: formData.password
@@ -119,9 +118,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         password: validatedData.password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Sign in error:', error);
+        // Provide a clear, user-friendly message
+        const friendlyMessage =
+          error.message.includes('Invalid login credentials')
+            ? 'Invalid email or password. Please check your credentials and try again.'
+            : error.message;
+        throw new Error(friendlyMessage);
+      }
 
       if (data.user) {
+        // Ensure profile row exists for this user (safety net)
+        await supabase.from('profiles').upsert({
+          id: data.user.id,
+          full_name: data.user.user_metadata?.full_name ?? null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'id' });
+
         toast({
           title: "Welcome back! 🌍",
           description: "Ready for your next adventure?",
