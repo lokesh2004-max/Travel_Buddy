@@ -217,11 +217,13 @@ const Queera = () => {
         description: "Let's find your perfect travel buddy",
       });
 
-      // Smart redirect: if trip selected, go to buddy match; otherwise go to search
+      // Smart redirect: if trip selected, go to buddy match; otherwise go to search results
       if (selectedTrip) {
+        console.log('[Nav] Quiz complete → /buddy-match');
         navigate('/buddy-match');
       } else {
-        navigate('/search');
+        console.log('[Nav] Quiz complete (no trip selected) → /search-results');
+        navigate('/search-results');
       }
     }
   };
