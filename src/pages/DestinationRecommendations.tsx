@@ -302,9 +302,17 @@ const DestinationRecommendations = () => {
     const answers = localStorage.getItem('queeraAnswers');
     const buddy = localStorage.getItem('selectedBuddy');
 
-    if (!answers || !buddy) {
-      // If missing data, redirect to quiz
+    if (!answers) {
+      // Quiz not completed → send to quiz
+      console.log('[Nav] DestinationRecommendations: no quiz answers → /queera');
       navigate('/queera');
+      return;
+    }
+
+    if (!buddy) {
+      // Quiz done but no buddy selected yet → send to buddy match
+      console.log('[Nav] DestinationRecommendations: no buddy selected → /buddy-match');
+      navigate('/buddy-match');
       return;
     }
 
