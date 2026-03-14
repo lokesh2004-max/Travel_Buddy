@@ -138,11 +138,14 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accommodation: string | null
           avatar_url: string | null
           bio: string | null
           budget_range: string | null
           created_at: string
+          destination_type: string | null
           full_name: string | null
+          group_size: string | null
           id: string
           interests: string[] | null
           languages: string[] | null
@@ -151,11 +154,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          accommodation?: string | null
           avatar_url?: string | null
           bio?: string | null
           budget_range?: string | null
           created_at?: string
+          destination_type?: string | null
           full_name?: string | null
+          group_size?: string | null
           id: string
           interests?: string[] | null
           languages?: string[] | null
@@ -164,11 +170,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          accommodation?: string | null
           avatar_url?: string | null
           bio?: string | null
           budget_range?: string | null
           created_at?: string
+          destination_type?: string | null
           full_name?: string | null
+          group_size?: string | null
           id?: string
           interests?: string[] | null
           languages?: string[] | null
