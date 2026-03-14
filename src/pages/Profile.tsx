@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import {
   ArrowLeft, Camera, User, MapPin, FileText, Tag, Globe,
-  Compass, Wallet, Save, X, Plus, Loader2, CheckCircle2
+  Compass, Wallet, Save, Loader2, CheckCircle2, BedDouble, Users, Mountain,
 } from 'lucide-react';
 import ProfileCompletionChecklist from '@/components/ProfileCompletionChecklist';
 
@@ -41,6 +41,27 @@ const BUDGET_RANGES = [
   { value: '50k+', label: '₹50k+' },
 ];
 
+const ACCOMMODATION_OPTIONS = [
+  { value: 'hostel', label: '🛏️ Hostel' },
+  { value: 'hotel', label: '🏨 Hotel' },
+  { value: 'airbnb', label: '🏠 Airbnb' },
+  { value: 'camping', label: '⛺ Camping' },
+];
+
+const GROUP_SIZE_OPTIONS = [
+  { value: 'duo', label: '👫 Duo (2)' },
+  { value: 'small', label: '👥 Small (3–5)' },
+  { value: 'medium', label: '🧑‍🤝‍🧑 Medium (6–10)' },
+  { value: 'large', label: '🎉 Large (10+)' },
+];
+
+const DESTINATION_TYPE_OPTIONS = [
+  { value: 'beach', label: '🏖️ Beach' },
+  { value: 'mountains', label: '🏔️ Mountains' },
+  { value: 'cities', label: '🌆 Cities' },
+  { value: 'nature', label: '🌿 Nature' },
+];
+
 interface ProfileForm {
   full_name: string;
   bio: string;
@@ -49,6 +70,9 @@ interface ProfileForm {
   languages: string[];
   travel_style: string;
   budget_range: string;
+  accommodation: string;
+  group_size: string;
+  destination_type: string;
   avatar_url: string;
 }
 
@@ -67,6 +91,9 @@ const Profile = () => {
     languages: [],
     travel_style: '',
     budget_range: '',
+    accommodation: '',
+    group_size: '',
+    destination_type: '',
     avatar_url: '',
   });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -88,6 +115,9 @@ const Profile = () => {
           languages: (data as any).languages || [],
           travel_style: (data as any).travel_style || '',
           budget_range: (data as any).budget_range || '',
+          accommodation: (data as any).accommodation || '',
+          group_size: (data as any).group_size || '',
+          destination_type: (data as any).destination_type || '',
           avatar_url: data.avatar_url || '',
         });
         setAvatarPreview(data.avatar_url || '');
@@ -113,7 +143,6 @@ const Profile = () => {
     try {
       let avatar_url = form.avatar_url;
 
-      // Upload avatar if changed
       if (avatarFile) {
         const ext = avatarFile.name.split('.').pop();
         const path = `avatars/${userId}.${ext}`;
@@ -122,7 +151,6 @@ const Profile = () => {
           .upload(path, avatarFile, { upsert: true });
 
         if (uploadErr) {
-          // If storage bucket doesn't exist, just use the data URL
           avatar_url = avatarPreview;
         } else {
           const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
@@ -139,6 +167,9 @@ const Profile = () => {
         languages: form.languages,
         travel_style: form.travel_style,
         budget_range: form.budget_range,
+        accommodation: form.accommodation,
+        group_size: form.group_size,
+        destination_type: form.destination_type,
         avatar_url,
         updated_at: new Date().toISOString(),
       } as any);
@@ -164,6 +195,9 @@ const Profile = () => {
     languages: form.languages,
     travel_style: form.travel_style,
     budget_range: form.budget_range,
+    accommodation: form.accommodation,
+    group_size: form.group_size,
+    destination_type: form.destination_type,
   };
 
   if (loading) {
@@ -173,6 +207,37 @@ const Profile = () => {
       </div>
     );
   }
+
+  // Reusable single-select grid renderer
+  const SingleSelectGrid = ({
+    options,
+    value,
+    onChange,
+    activeClass,
+    hoverClass,
+  }: {
+    options: { value: string; label: string }[];
+    value: string;
+    onChange: (v: string) => void;
+    activeClass: string;
+    hoverClass: string;
+  }) => (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {options.map(opt => (
+        <button
+          key={opt.value}
+          onClick={() => onChange(value === opt.value ? '' : opt.value)}
+          className={`p-3 rounded-xl text-sm font-medium text-center transition-all border-2 ${
+            value === opt.value
+              ? activeClass
+              : `border-gray-100 bg-gray-50 text-gray-600 ${hoverClass}`
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -215,7 +280,6 @@ const Profile = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Avatar Upload */}
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <Avatar className="h-20 w-20">
@@ -243,7 +307,6 @@ const Profile = () => {
                 </div>
               </div>
 
-              {/* Full Name */}
               <div className="space-y-1.5">
                 <Label htmlFor="full_name">Full Name</Label>
                 <Input
@@ -254,7 +317,6 @@ const Profile = () => {
                 />
               </div>
 
-              {/* Bio */}
               <div className="space-y-1.5">
                 <Label htmlFor="bio" className="flex items-center gap-1.5">
                   <FileText size={14} className="text-blue-600" /> Bio
@@ -268,7 +330,6 @@ const Profile = () => {
                 />
               </div>
 
-              {/* Location */}
               <div className="space-y-1.5">
                 <Label htmlFor="location" className="flex items-center gap-1.5">
                   <MapPin size={14} className="text-blue-600" /> Location
@@ -283,7 +344,7 @@ const Profile = () => {
             </CardContent>
           </Card>
 
-          {/* Travel Preferences */}
+          {/* Travel Interests */}
           <Card className="rounded-2xl shadow-md border-gray-100">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2 text-gray-700">
@@ -370,21 +431,70 @@ const Profile = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {BUDGET_RANGES.map(range => (
-                  <button
-                    key={range.value}
-                    onClick={() => setForm(p => ({ ...p, budget_range: p.budget_range === range.value ? '' : range.value }))}
-                    className={`p-3 rounded-xl text-sm font-medium text-center transition-all border-2 ${
-                      form.budget_range === range.value
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-100 bg-gray-50 text-gray-600 hover:border-blue-200 hover:bg-blue-50/50'
-                    }`}
-                  >
-                    {range.label}
-                  </button>
-                ))}
-              </div>
+              <SingleSelectGrid
+                options={BUDGET_RANGES}
+                value={form.budget_range}
+                onChange={v => setForm(p => ({ ...p, budget_range: v }))}
+                activeClass="border-blue-500 bg-blue-50 text-blue-700"
+                hoverClass="hover:border-blue-200 hover:bg-blue-50/50"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Accommodation Preference */}
+          <Card className="rounded-2xl shadow-md border-gray-100">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2 text-gray-700">
+                <BedDouble size={18} className="text-rose-500" /> Accommodation Preference
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-gray-400 mb-3">Where do you prefer to stay?</p>
+              <SingleSelectGrid
+                options={ACCOMMODATION_OPTIONS}
+                value={form.accommodation}
+                onChange={v => setForm(p => ({ ...p, accommodation: v }))}
+                activeClass="border-rose-400 bg-rose-50 text-rose-700"
+                hoverClass="hover:border-rose-200 hover:bg-rose-50/50"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Preferred Group Size */}
+          <Card className="rounded-2xl shadow-md border-gray-100">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2 text-gray-700">
+                <Users size={18} className="text-teal-600" /> Preferred Group Size
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-gray-400 mb-3">How many travel companions do you prefer?</p>
+              <SingleSelectGrid
+                options={GROUP_SIZE_OPTIONS}
+                value={form.group_size}
+                onChange={v => setForm(p => ({ ...p, group_size: v }))}
+                activeClass="border-teal-500 bg-teal-50 text-teal-700"
+                hoverClass="hover:border-teal-200 hover:bg-teal-50/50"
+              />
+            </CardContent>
+          </Card>
+
+          {/* Destination Type */}
+          <Card className="rounded-2xl shadow-md border-gray-100">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2 text-gray-700">
+                <Mountain size={18} className="text-indigo-600" /> Destination Preference
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-gray-400 mb-3">What kind of destination excites you most?</p>
+              <SingleSelectGrid
+                options={DESTINATION_TYPE_OPTIONS}
+                value={form.destination_type}
+                onChange={v => setForm(p => ({ ...p, destination_type: v }))}
+                activeClass="border-indigo-500 bg-indigo-50 text-indigo-700"
+                hoverClass="hover:border-indigo-200 hover:bg-indigo-50/50"
+              />
             </CardContent>
           </Card>
 

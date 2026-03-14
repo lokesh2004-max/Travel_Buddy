@@ -1,8 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, Circle, Camera, FileText, MapPin, Tag, Globe, Compass, Wallet, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Circle, Camera, FileText, MapPin, Tag, Globe, Compass, Wallet, BedDouble, Users, Mountain, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 
 interface ProfileData {
@@ -13,6 +12,9 @@ interface ProfileData {
   languages?: string[] | null;
   travel_style?: string | null;
   budget_range?: string | null;
+  accommodation?: string | null;
+  group_size?: string | null;
+  destination_type?: string | null;
 }
 
 interface ChecklistItem {
@@ -80,6 +82,27 @@ const ProfileCompletionChecklist: React.FC<Props> = ({ profile }) => {
       icon: Wallet,
       completed: !!profile?.budget_range,
     },
+    {
+      key: 'accommodation',
+      label: 'Accommodation preference',
+      description: 'Hostel, hotel, airbnb, camping',
+      icon: BedDouble,
+      completed: !!profile?.accommodation,
+    },
+    {
+      key: 'group_size',
+      label: 'Preferred group size',
+      description: 'Duo, small, medium or large',
+      icon: Users,
+      completed: !!profile?.group_size,
+    },
+    {
+      key: 'destination_type',
+      label: 'Destination preference',
+      description: 'Beach, mountains, cities, nature',
+      icon: Mountain,
+      completed: !!profile?.destination_type,
+    },
   ];
 
   const completedCount = items.filter(i => i.completed).length;
@@ -118,14 +141,12 @@ const ProfileCompletionChecklist: React.FC<Props> = ({ profile }) => {
               )}
               onClick={() => !item.completed && navigate('/profile')}
             >
-              {/* Status icon */}
               {item.completed ? (
                 <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
               ) : (
                 <Circle className="h-5 w-5 text-gray-300 shrink-0" />
               )}
 
-              {/* Task icon */}
               <div className={cn(
                 'h-8 w-8 rounded-lg flex items-center justify-center shrink-0',
                 item.completed ? 'bg-green-50' : 'bg-blue-50'
@@ -133,7 +154,6 @@ const ProfileCompletionChecklist: React.FC<Props> = ({ profile }) => {
                 <Icon className={cn('h-4 w-4', item.completed ? 'text-green-500' : 'text-blue-600')} />
               </div>
 
-              {/* Label */}
               <div className="flex-1 min-w-0">
                 <p className={cn(
                   'text-sm font-medium',
@@ -154,7 +174,7 @@ const ProfileCompletionChecklist: React.FC<Props> = ({ profile }) => {
         })}
       </div>
 
-      {/* CTA Button */}
+      {/* CTA */}
       {percentage < 100 && (
         <div className="px-4 pb-4">
           <Button
