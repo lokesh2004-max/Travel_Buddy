@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   Users, MessageCircle, Globe, Bell, Zap,
   Calendar, ArrowRight, UserPlus, PlaneTakeoff, Pencil,
-  LogOut, Loader2
+  LogOut, Loader2, Sparkles,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ProfileCompletionChecklist from '@/components/ProfileCompletionChecklist';
@@ -21,8 +21,6 @@ interface Profile {
   interests: string[] | null;
   location: string | null;
   languages?: string[] | null;
-  travel_style?: string | null;
-  budget_range?: string | null;
 }
 
 interface Match {
@@ -60,7 +58,7 @@ interface Message {
 }
 
 const recommendedDestinations = [
-  { name: 'Goa', image: 'https://www.holidify.com/images/bgImages/GOA.jpg', tag: 'Beach' },
+  { name: 'Goa',    image: 'https://www.holidify.com/images/bgImages/GOA.jpg', tag: 'Beach' },
   { name: 'Manali', image: 'https://i0.wp.com/www.tusktravel.com/blog/wp-content/uploads/2021/11/Bandli-Sanctuary-Himachal.jpg?resize=750%2C550&ssl=1', tag: 'Mountains' },
   { name: 'Kerala', image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=800', tag: 'Backwaters' },
 ];
@@ -70,6 +68,7 @@ const Dashboard = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [hasQuizAnswers, setHasQuizAnswers] = useState(false);
   const [matches, setMatches] = useState<Match[]>([]);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -79,10 +78,7 @@ const Dashboard = () => {
   useEffect(() => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate('/');
-        return;
-      }
+      if (!session) { navigate('/'); return; }
       await fetchDashboardData(session.user.id);
     };
     init();
@@ -96,8 +92,9 @@ const Dashboard = () => {
   const fetchDashboardData = async (userId: string) => {
     setLoading(true);
     try {
-      const [profileRes, matchesRes, tripsRes, notifRes, messagesRes] = await Promise.all([
+      const [profileRes, quizRes, matchesRes, tripsRes, notifRes, messagesRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
+        (supabase.from('quiz_answers' as any) as any).select('user_id').eq('user_id', userId).maybeSingle(),
         supabase.from('buddy_matches').select('*').or(`user1_id.eq.${userId},user2_id.eq.${userId}`).eq('status', 'accepted').order('created_at', { ascending: false }).limit(5),
         supabase.from('trips').select('*').eq('user_id', userId).neq('status', 'completed').order('start_date', { ascending: true }).limit(5),
         supabase.from('notifications').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
@@ -105,9 +102,15 @@ const Dashboard = () => {
       ]);
 
       if (profileRes.data) setProfile(profileRes.data);
+
+      // Check if user has completed the quiz
+      setHasQuizAnswers(!!quizRes.data);
+      if (!quizRes.data) {
+        console.log('[Dashboard] New user — no quiz answers found, showing quiz prompt');
+      }
+
       if (matchesRes.data) {
         setMatches(matchesRes.data);
-        // Fetch profiles for matched buddies
         const buddyIds = matchesRes.data.map(m => m.user1_id === userId ? m.user2_id : m.user1_id);
         if (buddyIds.length > 0) {
           const { data: profiles } = await supabase.from('profiles').select('*').in('id', buddyIds);
@@ -118,8 +121,8 @@ const Dashboard = () => {
           }
         }
       }
-      if (tripsRes.data) setTrips(tripsRes.data);
-      if (notifRes.data) setNotifications(notifRes.data);
+      if (tripsRes.data)    setTrips(tripsRes.data);
+      if (notifRes.data)    setNotifications(notifRes.data);
       if (messagesRes.data) setRecentMessages(messagesRes.data);
     } catch (err) {
       console.error('Dashboard fetch error:', err);
@@ -127,7 +130,6 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
-
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -180,13 +182,38 @@ const Dashboard = () => {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
+        {/* Welcome */}
         <div className="mb-8">
           <h1 className="text-3xl lg:text-4xl font-bold text-gray-800">
             Welcome back, {userName} 👋
           </h1>
           <p className="text-gray-500 mt-1">Here's what's happening with your travels</p>
         </div>
+
+        {/* ── New-user onboarding banner ── */}
+        {!hasQuizAnswers && (
+          <div className="mb-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <Sparkles className="h-8 w-8 shrink-0 mt-0.5" />
+                <div>
+                  <h2 className="text-xl font-bold mb-1">Complete the Buddy Quiz to Get Started!</h2>
+                  <p className="text-blue-100 text-sm">
+                    Tell us your travel style, budget and preferences — takes just 2 minutes.
+                    We'll instantly show you your best-matched travel companions.
+                  </p>
+                </div>
+              </div>
+              <Button
+                size="lg"
+                className="bg-white text-blue-700 hover:bg-blue-50 font-bold shrink-0"
+                onClick={() => navigate('/queera')}
+              >
+                Take the Quiz →
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Profile Completion Checklist */}
         <div className="mb-8">
@@ -196,20 +223,27 @@ const Dashboard = () => {
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-          {/* Card 1: My Matches */}
+          {/* My Matches */}
           <Card className="shadow-md hover:shadow-xl transition-shadow rounded-2xl">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg flex items-center gap-2"><Users size={20} className="text-blue-600" /> My Matches</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Users size={20} className="text-blue-600" /> My Matches
+              </CardTitle>
               <Badge variant="secondary">{matches.length}</Badge>
             </CardHeader>
             <CardContent>
               {matches.length === 0 ? (
-                <p className="text-gray-400 text-sm py-4 text-center">No matches yet. Start swiping!</p>
+                <div className="text-center py-4">
+                  <p className="text-gray-400 text-sm mb-3">No matches yet. Take the quiz!</p>
+                  <Button size="sm" variant="outline" onClick={() => navigate('/queera')}>
+                    Find Buddies
+                  </Button>
+                </div>
               ) : (
                 <div className="space-y-3">
                   {matches.slice(0, 3).map(match => {
                     const buddyId = match.user1_id === profile?.id ? match.user2_id : match.user1_id;
-                    const buddy = matchProfiles[buddyId];
+                    const buddy   = matchProfiles[buddyId];
                     return (
                       <div key={match.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -232,10 +266,12 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Card 2: Upcoming Trips */}
+          {/* Upcoming Trips */}
           <Card className="shadow-md hover:shadow-xl transition-shadow rounded-2xl">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg flex items-center gap-2"><PlaneTakeoff size={20} className="text-green-600" /> Upcoming Trips</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <PlaneTakeoff size={20} className="text-green-600" /> Upcoming Trips
+              </CardTitle>
               <Badge variant="secondary">{trips.length}</Badge>
             </CardHeader>
             <CardContent>
@@ -260,10 +296,12 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Card 3: Recent Chats */}
+          {/* Recent Chats */}
           <Card className="shadow-md hover:shadow-xl transition-shadow rounded-2xl">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg flex items-center gap-2"><MessageCircle size={20} className="text-purple-600" /> Recent Chats</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <MessageCircle size={20} className="text-purple-600" /> Recent Chats
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {recentMessages.length === 0 ? (
@@ -289,10 +327,12 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Card 4: Recommended Destinations */}
+          {/* Recommended Destinations */}
           <Card className="shadow-md hover:shadow-xl transition-shadow rounded-2xl">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2"><Globe size={20} className="text-orange-500" /> Recommended</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Globe size={20} className="text-orange-500" /> Recommended
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -310,10 +350,12 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Card 5: Notifications */}
+          {/* Notifications */}
           <Card className="shadow-md hover:shadow-xl transition-shadow rounded-2xl">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg flex items-center gap-2"><Bell size={20} className="text-red-500" /> Notifications</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Bell size={20} className="text-red-500" /> Notifications
+              </CardTitle>
               {notifications.filter(n => !n.is_read).length > 0 && (
                 <Badge variant="destructive">{notifications.filter(n => !n.is_read).length} new</Badge>
               )}
@@ -334,10 +376,12 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Card 6: Quick Actions */}
+          {/* Quick Actions */}
           <Card className="shadow-md hover:shadow-xl transition-shadow rounded-2xl">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2"><Zap size={20} className="text-yellow-500" /> Quick Actions</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Zap size={20} className="text-yellow-500" /> Quick Actions
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-3">

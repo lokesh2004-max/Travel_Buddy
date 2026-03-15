@@ -138,52 +138,73 @@ export type Database = {
       }
       profiles: {
         Row: {
-          accommodation: string | null
           avatar_url: string | null
           bio: string | null
-          budget_range: string | null
           created_at: string
-          destination_type: string | null
           full_name: string | null
-          group_size: string | null
           id: string
           interests: string[] | null
           languages: string[] | null
           location: string | null
-          travel_style: string | null
           updated_at: string
         }
         Insert: {
-          accommodation?: string | null
           avatar_url?: string | null
           bio?: string | null
-          budget_range?: string | null
           created_at?: string
-          destination_type?: string | null
           full_name?: string | null
-          group_size?: string | null
           id: string
           interests?: string[] | null
           languages?: string[] | null
           location?: string | null
-          travel_style?: string | null
           updated_at?: string
         }
         Update: {
-          accommodation?: string | null
           avatar_url?: string | null
           bio?: string | null
-          budget_range?: string | null
           created_at?: string
-          destination_type?: string | null
           full_name?: string | null
-          group_size?: string | null
           id?: string
           interests?: string[] | null
           languages?: string[] | null
           location?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      quiz_answers: {
+        Row: {
+          accommodation: string | null
+          budget: string | null
+          created_at: string
+          destination_type: string | null
+          group_size: string | null
+          id: string
+          travel_style: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accommodation?: string | null
+          budget?: string | null
+          created_at?: string
+          destination_type?: string | null
+          group_size?: string | null
+          id?: string
           travel_style?: string | null
           updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accommodation?: string | null
+          budget?: string | null
+          created_at?: string
+          destination_type?: string | null
+          group_size?: string | null
+          id?: string
+          travel_style?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

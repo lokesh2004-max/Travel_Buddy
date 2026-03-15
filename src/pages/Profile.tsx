@@ -1,3 +1,8 @@
+/**
+ * Profile page — stores identity and display data only.
+ * Travel matching preferences (travel_style, budget, accommodation,
+ * group_size, destination_type) have been moved to quiz_answers table.
+ */
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import {
   ArrowLeft, Camera, User, MapPin, FileText, Tag, Globe,
-  Compass, Wallet, Save, Loader2, CheckCircle2, BedDouble, Users, Mountain,
+  Save, Loader2, CheckCircle2,
 } from 'lucide-react';
 import ProfileCompletionChecklist from '@/components/ProfileCompletionChecklist';
 
@@ -25,54 +30,12 @@ const LANGUAGE_OPTIONS = [
   'Bengali', 'Marathi', 'Gujarati', 'Punjabi', 'French', 'Spanish',
 ];
 
-const TRAVEL_STYLES = [
-  { value: 'adventure', label: '🧗 Adventure' },
-  { value: 'luxury', label: '🏨 Luxury' },
-  { value: 'backpacking', label: '🎒 Backpacking' },
-  { value: 'cultural', label: '🎭 Cultural' },
-  { value: 'relaxation', label: '🏖️ Relaxation' },
-  { value: 'budget', label: '💸 Budget' },
-];
-
-const BUDGET_RANGES = [
-  { value: '5k-10k', label: '₹5k – ₹10k' },
-  { value: '10k-25k', label: '₹10k – ₹25k' },
-  { value: '25k-50k', label: '₹25k – ₹50k' },
-  { value: '50k+', label: '₹50k+' },
-];
-
-const ACCOMMODATION_OPTIONS = [
-  { value: 'hostel', label: '🛏️ Hostel' },
-  { value: 'hotel', label: '🏨 Hotel' },
-  { value: 'airbnb', label: '🏠 Airbnb' },
-  { value: 'camping', label: '⛺ Camping' },
-];
-
-const GROUP_SIZE_OPTIONS = [
-  { value: 'duo', label: '👫 Duo (2)' },
-  { value: 'small', label: '👥 Small (3–5)' },
-  { value: 'medium', label: '🧑‍🤝‍🧑 Medium (6–10)' },
-  { value: 'large', label: '🎉 Large (10+)' },
-];
-
-const DESTINATION_TYPE_OPTIONS = [
-  { value: 'beach', label: '🏖️ Beach' },
-  { value: 'mountains', label: '🏔️ Mountains' },
-  { value: 'cities', label: '🌆 Cities' },
-  { value: 'nature', label: '🌿 Nature' },
-];
-
 interface ProfileForm {
   full_name: string;
   bio: string;
   location: string;
   interests: string[];
   languages: string[];
-  travel_style: string;
-  budget_range: string;
-  accommodation: string;
-  group_size: string;
-  destination_type: string;
   avatar_url: string;
 }
 
@@ -89,11 +52,6 @@ const Profile = () => {
     location: '',
     interests: [],
     languages: [],
-    travel_style: '',
-    budget_range: '',
-    accommodation: '',
-    group_size: '',
-    destination_type: '',
     avatar_url: '',
   });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -105,19 +63,19 @@ const Profile = () => {
       if (!session) { navigate('/'); return; }
       setUserId(session.user.id);
 
-      const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+      const { data } = await supabase
+        .from('profiles')
+        .select('full_name, bio, location, interests, languages, avatar_url')
+        .eq('id', session.user.id)
+        .single();
+
       if (data) {
         setForm({
           full_name: data.full_name || '',
-          bio: data.bio || '',
-          location: data.location || '',
+          bio:       data.bio       || '',
+          location:  data.location  || '',
           interests: data.interests || [],
           languages: (data as any).languages || [],
-          travel_style: (data as any).travel_style || '',
-          budget_range: (data as any).budget_range || '',
-          accommodation: (data as any).accommodation || '',
-          group_size: (data as any).group_size || '',
-          destination_type: (data as any).destination_type || '',
           avatar_url: data.avatar_url || '',
         });
         setAvatarPreview(data.avatar_url || '');
@@ -144,7 +102,7 @@ const Profile = () => {
       let avatar_url = form.avatar_url;
 
       if (avatarFile) {
-        const ext = avatarFile.name.split('.').pop();
+        const ext  = avatarFile.name.split('.').pop();
         const path = `avatars/${userId}.${ext}`;
         const { error: uploadErr } = await supabase.storage
           .from('avatars')
@@ -159,17 +117,12 @@ const Profile = () => {
       }
 
       const { error } = await supabase.from('profiles').upsert({
-        id: userId,
+        id:        userId,
         full_name: form.full_name,
-        bio: form.bio,
-        location: form.location,
+        bio:       form.bio,
+        location:  form.location,
         interests: form.interests,
         languages: form.languages,
-        travel_style: form.travel_style,
-        budget_range: form.budget_range,
-        accommodation: form.accommodation,
-        group_size: form.group_size,
-        destination_type: form.destination_type,
         avatar_url,
         updated_at: new Date().toISOString(),
       } as any);
@@ -189,15 +142,10 @@ const Profile = () => {
 
   const profileForChecklist = {
     avatar_url: avatarPreview || form.avatar_url,
-    bio: form.bio,
-    location: form.location,
-    interests: form.interests,
-    languages: form.languages,
-    travel_style: form.travel_style,
-    budget_range: form.budget_range,
-    accommodation: form.accommodation,
-    group_size: form.group_size,
-    destination_type: form.destination_type,
+    bio:        form.bio,
+    location:   form.location,
+    interests:  form.interests,
+    languages:  form.languages,
   };
 
   if (loading) {
@@ -207,37 +155,6 @@ const Profile = () => {
       </div>
     );
   }
-
-  // Reusable single-select grid renderer
-  const SingleSelectGrid = ({
-    options,
-    value,
-    onChange,
-    activeClass,
-    hoverClass,
-  }: {
-    options: { value: string; label: string }[];
-    value: string;
-    onChange: (v: string) => void;
-    activeClass: string;
-    hoverClass: string;
-  }) => (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      {options.map(opt => (
-        <button
-          key={opt.value}
-          onClick={() => onChange(value === opt.value ? '' : opt.value)}
-          className={`p-3 rounded-xl text-sm font-medium text-center transition-all border-2 ${
-            value === opt.value
-              ? activeClass
-              : `border-gray-100 bg-gray-50 text-gray-600 ${hoverClass}`
-          }`}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -264,8 +181,25 @@ const Profile = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Checklist */}
         <div className="lg:col-span-1">
-          <div className="sticky top-24">
+          <div className="sticky top-24 space-y-4">
             <ProfileCompletionChecklist profile={profileForChecklist} />
+
+            {/* Quiz preferences callout */}
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-100 rounded-2xl p-4">
+              <p className="text-sm font-semibold text-blue-800 mb-1">🎯 Travel Preferences</p>
+              <p className="text-xs text-blue-600 mb-3">
+                Your travel style, budget, accommodation and destination preferences are set during the
+                matching quiz — not here.
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full border-blue-300 text-blue-700 hover:bg-blue-50"
+                onClick={() => navigate('/queera')}
+              >
+                Update Travel Preferences
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -394,107 +328,6 @@ const Profile = () => {
                   </button>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Travel Style */}
-          <Card className="rounded-2xl shadow-md border-gray-100">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2 text-gray-700">
-                <Compass size={18} className="text-orange-500" /> Travel Style
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {TRAVEL_STYLES.map(style => (
-                  <button
-                    key={style.value}
-                    onClick={() => setForm(p => ({ ...p, travel_style: p.travel_style === style.value ? '' : style.value }))}
-                    className={`p-3 rounded-xl text-sm font-medium text-center transition-all border-2 ${
-                      form.travel_style === style.value
-                        ? 'border-orange-400 bg-orange-50 text-orange-700'
-                        : 'border-gray-100 bg-gray-50 text-gray-600 hover:border-orange-200 hover:bg-orange-50/50'
-                    }`}
-                  >
-                    {style.label}
-                  </button>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Budget Range */}
-          <Card className="rounded-2xl shadow-md border-gray-100">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2 text-gray-700">
-                <Wallet size={18} className="text-blue-600" /> Budget Range (per trip)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SingleSelectGrid
-                options={BUDGET_RANGES}
-                value={form.budget_range}
-                onChange={v => setForm(p => ({ ...p, budget_range: v }))}
-                activeClass="border-blue-500 bg-blue-50 text-blue-700"
-                hoverClass="hover:border-blue-200 hover:bg-blue-50/50"
-              />
-            </CardContent>
-          </Card>
-
-          {/* Accommodation Preference */}
-          <Card className="rounded-2xl shadow-md border-gray-100">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2 text-gray-700">
-                <BedDouble size={18} className="text-rose-500" /> Accommodation Preference
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-gray-400 mb-3">Where do you prefer to stay?</p>
-              <SingleSelectGrid
-                options={ACCOMMODATION_OPTIONS}
-                value={form.accommodation}
-                onChange={v => setForm(p => ({ ...p, accommodation: v }))}
-                activeClass="border-rose-400 bg-rose-50 text-rose-700"
-                hoverClass="hover:border-rose-200 hover:bg-rose-50/50"
-              />
-            </CardContent>
-          </Card>
-
-          {/* Preferred Group Size */}
-          <Card className="rounded-2xl shadow-md border-gray-100">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2 text-gray-700">
-                <Users size={18} className="text-teal-600" /> Preferred Group Size
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-gray-400 mb-3">How many travel companions do you prefer?</p>
-              <SingleSelectGrid
-                options={GROUP_SIZE_OPTIONS}
-                value={form.group_size}
-                onChange={v => setForm(p => ({ ...p, group_size: v }))}
-                activeClass="border-teal-500 bg-teal-50 text-teal-700"
-                hoverClass="hover:border-teal-200 hover:bg-teal-50/50"
-              />
-            </CardContent>
-          </Card>
-
-          {/* Destination Type */}
-          <Card className="rounded-2xl shadow-md border-gray-100">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2 text-gray-700">
-                <Mountain size={18} className="text-indigo-600" /> Destination Preference
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-gray-400 mb-3">What kind of destination excites you most?</p>
-              <SingleSelectGrid
-                options={DESTINATION_TYPE_OPTIONS}
-                value={form.destination_type}
-                onChange={v => setForm(p => ({ ...p, destination_type: v }))}
-                activeClass="border-indigo-500 bg-indigo-50 text-indigo-700"
-                hoverClass="hover:border-indigo-200 hover:bg-indigo-50/50"
-              />
             </CardContent>
           </Card>
 
