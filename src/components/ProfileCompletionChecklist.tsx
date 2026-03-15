@@ -1,6 +1,13 @@
+/**
+ * Profile completion checklist.
+ * Only tracks identity fields — matching preferences live in quiz_answers.
+ */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, Circle, Camera, FileText, MapPin, Tag, Globe, Compass, Wallet, BedDouble, Users, Mountain, ArrowRight } from 'lucide-react';
+import {
+  CheckCircle2, Circle,
+  Camera, FileText, MapPin, Tag, Globe, ArrowRight,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -10,6 +17,7 @@ interface ProfileData {
   location?: string | null;
   interests?: string[] | null;
   languages?: string[] | null;
+  // Legacy fields kept for backward compat but not used in checklist
   travel_style?: string | null;
   budget_range?: string | null;
   accommodation?: string | null;
@@ -68,41 +76,6 @@ const ProfileCompletionChecklist: React.FC<Props> = ({ profile }) => {
       icon: Globe,
       completed: !!(profile?.languages && profile.languages.length > 0),
     },
-    {
-      key: 'travel_style',
-      label: 'Select travel style',
-      description: 'Adventure, luxury, backpacking...',
-      icon: Compass,
-      completed: !!profile?.travel_style,
-    },
-    {
-      key: 'budget_range',
-      label: 'Set budget range',
-      description: 'Find financially compatible buddies',
-      icon: Wallet,
-      completed: !!profile?.budget_range,
-    },
-    {
-      key: 'accommodation',
-      label: 'Accommodation preference',
-      description: 'Hostel, hotel, airbnb, camping',
-      icon: BedDouble,
-      completed: !!profile?.accommodation,
-    },
-    {
-      key: 'group_size',
-      label: 'Preferred group size',
-      description: 'Duo, small, medium or large',
-      icon: Users,
-      completed: !!profile?.group_size,
-    },
-    {
-      key: 'destination_type',
-      label: 'Destination preference',
-      description: 'Beach, mountains, cities, nature',
-      icon: Mountain,
-      completed: !!profile?.destination_type,
-    },
   ];
 
   const completedCount = items.filter(i => i.completed).length;
@@ -114,7 +87,7 @@ const ProfileCompletionChecklist: React.FC<Props> = ({ profile }) => {
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-5 text-white">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h3 className="font-bold text-lg">Complete Your Travel Profile</h3>
+            <h3 className="font-bold text-lg">Complete Your Profile</h3>
             <p className="text-blue-100 text-sm mt-0.5">Better profiles get 3× more matches</p>
           </div>
           <span className="text-4xl font-extrabold tabular-nums">{percentage}%</span>

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, MapPin, CheckCircle, MessageCircle, Mail } from 'lucide-react';
+import { ArrowLeft, MapPin, CheckCircle, MessageCircle, Mail, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useBookingStore } from '@/store/bookingStore';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,7 +14,7 @@ import {
   type UserAnswers,
 } from '@/utils/matchingEngine';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface TravelBuddy {
   id: string;
@@ -29,164 +29,127 @@ interface TravelBuddy {
   email: string;
 }
 
+/** Shape returned from the quiz_answers table */
+interface QuizAnswersRow {
+  user_id: string;
+  travel_style: string | null;
+  budget: string | null;
+  accommodation: string | null;
+  group_size: string | null;
+  destination_type: string | null;
+}
+
 // ─── Static buddy pool ────────────────────────────────────────────────────────
-// Each buddy has an `interests` array; the engine infers categorical fields
-// automatically via `inferBuddyProfile`.
 
 const BUDDY_POOL: Omit<TravelBuddy, 'matchPercentage' | 'matchReasons'>[] = [
   {
     id: 'a0000000-0000-0000-0000-000000000001',
-    name: 'Priya Sharma',
-    image: '👩‍🦰',
-    age: 24,
-    location: 'Delhi',
+    name: 'Priya Sharma',   image: '👩‍🦰', age: 24, location: 'Delhi',
     bio: 'Adventure seeker and culture enthusiast who loves exploring hidden gems and trying local cuisines!',
     interests: ['Photography', 'Hiking', 'Food Tours', 'Museums'],
     email: 'priya.sharma@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000002',
-    name: 'Anmol Verma',
-    image: '👨‍🏫',
-    age: 26,
-    location: 'Arunachal Pradesh',
+    name: 'Anmol Verma',   image: '👨‍🏫', age: 26, location: 'Arunachal Pradesh',
     bio: 'Budget traveler and backpacker who believes the best adventures come from spontaneous decisions.',
     interests: ['Backpacking', 'Hostels', 'Street Food', 'Local Music'],
     email: 'anmol.verma@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000003',
-    name: 'Diksha Upadhyay',
-    image: '👩‍💼',
-    age: 28,
-    location: 'Assam',
+    name: 'Diksha Upadhyay', image: '👩‍💼', age: 28, location: 'Assam',
     bio: 'Luxury traveler who enjoys fine dining, spa retreats, and creating Instagram-worthy memories.',
     interests: ['Luxury Hotels', 'Fine Dining', 'Shopping', 'Spas'],
     email: 'diksha.upadhyay@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000004',
-    name: 'Aarav Singh',
-    image: '🧑‍🎤',
-    age: 23,
-    location: 'Karnal',
+    name: 'Aarav Singh',   image: '🧑‍🎤', age: 23, location: 'Karnal',
     bio: 'Nightlife enthusiast and party lover who knows the best clubs in every city!',
     interests: ['Nightlife', 'Beach Parties', 'Festivals', 'Dancing'],
     email: 'aarav.singh@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000005',
-    name: 'Kavya Menon',
-    image: '👩‍🎨',
-    age: 25,
-    location: 'Srinagar',
+    name: 'Kavya Menon',   image: '👩‍🎨', age: 25, location: 'Srinagar',
     bio: 'Nature lover and outdoor enthusiast who prefers camping under the stars to city hotels.',
     interests: ['Camping', 'Rock Climbing', 'National Parks', 'Stargazing'],
     email: 'kavya.menon@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000006',
-    name: 'Rohan Kapoor',
-    image: '👨‍💻',
-    age: 27,
-    location: 'Bangalore',
+    name: 'Rohan Kapoor',  image: '👨‍💻', age: 27, location: 'Bangalore',
     bio: 'Tech-savvy traveler who loves digital nomad lifestyle and working from exotic locations.',
     interests: ['Co-working Spaces', 'Cafes', 'Photography', 'Hiking'],
     email: 'rohan.kapoor@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000007',
-    name: 'Sneha Reddy',
-    image: '👩‍🔬',
-    age: 29,
-    location: 'Hyderabad',
+    name: 'Sneha Reddy',   image: '👩‍🔬', age: 29, location: 'Hyderabad',
     bio: 'History buff and archaeology enthusiast who explores ancient ruins and heritage sites.',
     interests: ['Museums', 'Heritage Sites', 'Local Guides', 'Photography'],
     email: 'sneha.reddy@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000008',
-    name: 'Arjun Malhotra',
-    image: '👨‍🍳',
-    age: 30,
-    location: 'Mumbai',
+    name: 'Arjun Malhotra', image: '👨‍🍳', age: 30, location: 'Mumbai',
     bio: 'Foodie traveler on a mission to taste every street food delicacy across India!',
     interests: ['Street Food', 'Food Tours', 'Cooking Classes', 'Local Markets'],
     email: 'arjun.malhotra@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000009',
-    name: 'Ishita Bose',
-    image: '👩‍🎓',
-    age: 22,
-    location: 'Kolkata',
+    name: 'Ishita Bose',   image: '👩‍🎓', age: 22, location: 'Kolkata',
     bio: 'Student traveler who loves budget stays, making friends in hostels, and collecting stories.',
     interests: ['Hostels', 'Backpacking', 'Meeting Locals', 'Cultural Exchange'],
     email: 'ishita.bose@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000010',
-    name: 'Vikram Nair',
-    image: '👨‍✈️',
-    age: 31,
-    location: 'Kerala',
+    name: 'Vikram Nair',   image: '👨‍✈️', age: 31, location: 'Kerala',
     bio: 'Frequent flyer and hotel connoisseur who values comfort and premium travel experiences.',
     interests: ['Luxury Hotels', 'Business Class', 'Fine Dining', 'Airport Lounges'],
     email: 'vikram.nair@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000011',
-    name: 'Aisha Patel',
-    image: '👩‍🎤',
-    age: 26,
-    location: 'Goa',
+    name: 'Aisha Patel',   image: '👩‍🎤', age: 26, location: 'Goa',
     bio: 'Beach lover and water sports enthusiast who lives for sunset parties and ocean adventures.',
     interests: ['Beach Parties', 'Surfing', 'Diving', 'Festivals'],
     email: 'aisha.patel@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000012',
-    name: 'Karan Thakur',
-    image: '👨‍🎨',
-    age: 28,
-    location: 'Himachal Pradesh',
+    name: 'Karan Thakur',  image: '👨‍🎨', age: 28, location: 'Himachal Pradesh',
     bio: 'Mountain enthusiast and trekker who finds peace in the Himalayas and loves adventure sports.',
     interests: ['Trekking', 'Camping', 'Rock Climbing', 'Mountain Biking'],
     email: 'karan.thakur@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000013',
-    name: 'Meera Desai',
-    image: '👩‍⚕️',
-    age: 33,
-    location: 'Pune',
+    name: 'Meera Desai',   image: '👩‍⚕️', age: 33, location: 'Pune',
     bio: 'Wellness traveler seeking yoga retreats, meditation centers, and spiritual experiences.',
     interests: ['Yoga', 'Meditation', 'Spas', 'Wellness Retreats'],
     email: 'meera.desai@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000014',
-    name: 'Siddharth Gupta',
-    image: '👨‍🎬',
-    age: 25,
-    location: 'Rajasthan',
+    name: 'Siddharth Gupta', image: '👨‍🎬', age: 25, location: 'Rajasthan',
     bio: 'Photography enthusiast capturing stunning landscapes and vibrant cultural festivals.',
     interests: ['Photography', 'Festivals', 'Heritage Sites', 'Local Culture'],
     email: 'siddharth.gupta@email.com',
   },
   {
     id: 'a0000000-0000-0000-0000-000000000015',
-    name: 'Tanvi Rao',
-    image: '👩‍🏫',
-    age: 24,
-    location: 'Chennai',
+    name: 'Tanvi Rao',     image: '👩‍🏫', age: 24, location: 'Chennai',
     bio: 'Solo female traveler empowering others to explore the world safely and confidently.',
     interests: ['Solo Travel', 'Hostels', 'Women Groups', 'Cultural Tours'],
     email: 'tanvi.rao@email.com',
   },
 ];
 
-// ─── Score band helper ────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getScoreBand(score: number): { label: string; className: string } {
   if (score >= 75) return { label: 'Excellent Match', className: 'bg-success/15 text-success border-success/30' };
@@ -202,24 +165,85 @@ function getBarColor(score: number): string {
   return 'bg-muted-foreground';
 }
 
+/** Map quiz_answers row → UserAnswers expected by the compatibility engine */
+function quizRowToUserAnswers(row: QuizAnswersRow): UserAnswers {
+  return {
+    travel_style:     row.travel_style     ?? undefined,
+    budget:           row.budget           ?? undefined,
+    accommodation:    row.accommodation    ?? undefined,
+    group_size:       row.group_size       ?? undefined,
+    destination_type: row.destination_type ?? undefined,
+  };
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const BuddyMatch = () => {
   const navigate  = useNavigate();
   const { toast } = useToast();
-  const { setSelectedBuddy, quizAnswers } = useBookingStore();
+  const { setSelectedBuddy, quizAnswers, setQuizAnswers } = useBookingStore();
 
   const [matches,  setMatches]  = useState<TravelBuddy[]>([]);
   const [showAll,  setShowAll]  = useState(false);
+  const [loading,  setLoading]  = useState(true);
 
-  // ── Score all buddies deterministically on mount ──────────────────────────
   useEffect(() => {
-    if (!quizAnswers || Object.keys(quizAnswers).length === 0) {
-      navigate('/queera');
-      return;
+    loadAnswersAndScore();
+  }, []);
+
+  const loadAnswersAndScore = async () => {
+    setLoading(true);
+
+    try {
+      // 1. Try fetching quiz answers from Supabase (source of truth)
+      const { data: { user } } = await supabase.auth.getUser();
+      let answersForEngine: UserAnswers | null = null;
+
+      if (user) {
+        const { data: row, error } = await (supabase.from('quiz_answers' as any) as any)
+          .select('travel_style, budget, accommodation, group_size, destination_type')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!error && row) {
+          console.log('[BuddyMatch] Loaded quiz answers from Supabase ✓', row);
+          const mapped = quizRowToUserAnswers(row as QuizAnswersRow);
+          // Sync to Zustand so downstream pages still work
+          setQuizAnswers({
+            travel_style:     mapped.travel_style,
+            budget:           mapped.budget,
+            accommodation:    mapped.accommodation,
+            group_size:       mapped.group_size,
+            destination_type: mapped.destination_type,
+          });
+          answersForEngine = mapped;
+        }
+      }
+
+      // 2. Fallback to Zustand store (e.g. not logged in, or first visit)
+      if (!answersForEngine) {
+        if (!quizAnswers || Object.keys(quizAnswers).length === 0) {
+          console.log('[Nav] No quiz answers found → redirect to /queera');
+          navigate('/queera');
+          return;
+        }
+        console.log('[BuddyMatch] Using Zustand quiz answers as fallback');
+        answersForEngine = quizAnswers as UserAnswers;
+      }
+
+      computeMatches(answersForEngine);
+    } catch (err) {
+      console.error('[BuddyMatch] Error loading quiz answers:', err);
+      // Fall back to Zustand
+      if (quizAnswers && Object.keys(quizAnswers).length > 0) {
+        computeMatches(quizAnswers as UserAnswers);
+      } else {
+        navigate('/queera');
+      }
+    } finally {
+      setLoading(false);
     }
-    computeMatches(quizAnswers as UserAnswers);
-  }, [navigate, quizAnswers]);
+  };
 
   const computeMatches = (answers: UserAnswers) => {
     const scored: TravelBuddy[] = BUDDY_POOL.map(buddy => {
@@ -227,12 +251,10 @@ const BuddyMatch = () => {
       const { score, reasons } = calculateCompatibility(answers, buddyProfile);
       return { ...buddy, matchPercentage: score, matchReasons: reasons };
     });
-
     scored.sort((a, b) => b.matchPercentage - a.matchPercentage);
     setMatches(scored);
   };
 
-  // ── Select buddy handler ──────────────────────────────────────────────────
   const handleSelectBuddy = async (buddy: TravelBuddy) => {
     localStorage.setItem('selectedBuddy', JSON.stringify(buddy));
     setSelectedBuddy({
@@ -255,8 +277,9 @@ const BuddyMatch = () => {
         status: 'accepted',
       });
       if (error) {
-        console.error('Error creating buddy match:', error);
+        console.error('[BuddyMatch] Error creating buddy match:', error);
       } else {
+        console.log('[Nav] Buddy selected → /buddy-details');
         toast({ title: `Matched with ${buddy.name}! 🎉`, description: 'You can now chat in Messages' });
       }
     }
@@ -266,7 +289,17 @@ const BuddyMatch = () => {
 
   const visibleMatches = showAll ? matches : matches.slice(0, 4);
 
-  // ─── Render ───────────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+        <div className="text-center">
+          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading your preferences…</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 py-8">
       <div className="container mx-auto px-4 max-w-6xl">
@@ -298,7 +331,7 @@ const BuddyMatch = () => {
           <>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {visibleMatches.map((buddy, index) => {
-                const band    = getScoreBand(buddy.matchPercentage);
+                const band     = getScoreBand(buddy.matchPercentage);
                 const barColor = getBarColor(buddy.matchPercentage);
 
                 return (
@@ -308,12 +341,9 @@ const BuddyMatch = () => {
                     style={{ animationDelay: `${index * 0.08}s` }}
                   >
                     <CardHeader className="text-center pb-3">
-                      {/* Avatar + score badge */}
                       <div className="relative mx-auto mb-3">
                         <div className="text-6xl leading-none">{buddy.image}</div>
-                        <Badge
-                          className={`absolute -top-2 -right-4 text-xs border ${band.className}`}
-                        >
+                        <Badge className={`absolute -top-2 -right-4 text-xs border ${band.className}`}>
                           {buddy.matchPercentage}%
                         </Badge>
                       </div>
@@ -327,17 +357,13 @@ const BuddyMatch = () => {
                         {buddy.location}
                       </div>
 
-                      {/* Band label */}
                       <Badge variant="outline" className={`mx-auto mt-1 text-xs ${band.className}`}>
                         {band.label}
                       </Badge>
                     </CardHeader>
 
                     <CardContent className="pt-0 flex flex-col gap-4 flex-1">
-                      {/* Bio */}
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {buddy.bio}
-                      </p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{buddy.bio}</p>
 
                       {/* Compatibility bar */}
                       <div>
@@ -345,7 +371,6 @@ const BuddyMatch = () => {
                           <span className="text-xs font-semibold text-foreground">Compatibility</span>
                           <span className="text-xs font-bold text-foreground">{buddy.matchPercentage}%</span>
                         </div>
-                        {/* Custom colored bar using a relative div since shadcn Progress is single-color */}
                         <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all duration-700 ${barColor}`}
@@ -372,9 +397,7 @@ const BuddyMatch = () => {
                       {/* Interests */}
                       <div className="flex flex-wrap gap-1">
                         {buddy.interests.slice(0, 3).map((interest, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">
-                            {interest}
-                          </Badge>
+                          <Badge key={idx} variant="secondary" className="text-xs">{interest}</Badge>
                         ))}
                         {buddy.interests.length > 3 && (
                           <Badge variant="outline" className="text-xs text-muted-foreground">
@@ -408,7 +431,6 @@ const BuddyMatch = () => {
               })}
             </div>
 
-            {/* See more */}
             {!showAll && matches.length > 4 && (
               <div className="text-center mt-8">
                 <Button
@@ -428,14 +450,14 @@ const BuddyMatch = () => {
           </div>
         )}
 
-        {/* Retake */}
+        {/* Retake quiz */}
         <div className="text-center mt-12">
           <Button
             variant="outline"
             onClick={() => navigate('/queera')}
             className="border-primary text-primary hover:bg-primary/5"
           >
-            Want different matches? Retake the quiz
+            Retake Quiz
           </Button>
         </div>
       </div>
