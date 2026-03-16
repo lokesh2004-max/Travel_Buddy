@@ -94,7 +94,7 @@ const Queera = () => {
       return;
     }
 
-    const { error } = await supabase.from('quiz_answers' as any).upsert({
+    const { error } = await supabase.from('quiz_answers').upsert({
       user_id:          user.id,
       travel_style:     finalAnswers.travel_style     ?? null,
       budget:           finalAnswers.budget           ?? null,

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, Mail, MapPin, Star, Heart, Calendar, Users, Globe, Languages, Plane, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useBookingStore } from '@/store/bookingStore';
@@ -12,13 +12,20 @@ interface TravelBuddy {
   id: string;
   name: string;
   image: string;
-  age: number;
+  age?: number;
   location: string;
   bio: string;
   interests: string[];
   matchPercentage: number;
-  matchReasons: string[];
-  email: string;
+  matchReasons?: string[];
+  email?: string;
+  // real-user fields
+  avatar_url?: string | null;
+  travel_style?: string | null;
+  budget?: string | null;
+  accommodation?: string | null;
+  group_size?: string | null;
+  destination_type?: string | null;
 }
 
 const BuddyDetails = () => {
@@ -51,17 +58,9 @@ const BuddyDetails = () => {
   }, [navigate, setSelectedBuddy]);
 
   const handleEmailClick = () => {
-    if (buddy) {
+    if (buddy?.email) {
       const subject = encodeURIComponent(`Travel Buddy Connection - Let's Explore Together! 🌍`);
-      const body = encodeURIComponent(`Hi ${buddy.name.split(' ')[0]},
-
-I found you through Travel Buddy and we're a ${buddy.matchPercentage}% match! I'd love to connect and potentially plan some amazing adventures together.
-
-Looking forward to hearing from you!
-
-Best regards,
-Your Travel Buddy Match`);
-      
+      const body = encodeURIComponent(`Hi ${buddy.name.split(' ')[0]},\n\nI found you through Travel Buddy and we're a ${buddy.matchPercentage}% match! I'd love to connect.\n\nBest regards,\nYour Travel Buddy Match`);
       window.location.href = `mailto:${buddy.email}?subject=${subject}&body=${body}`;
     }
   };
@@ -113,12 +112,13 @@ Your Travel Buddy Match`);
                 {/* Profile Image */}
                 <div className="flex flex-col items-center text-center mb-6">
                   <Avatar className="h-32 w-32 mb-4 text-6xl border-4 border-primary/20">
+                  <AvatarImage src={buddy.avatar_url || ''} alt={buddy.name} />
                     <AvatarFallback className="text-6xl bg-gradient-to-br from-primary to-accent">
-                      {buddy.image}
+                      {buddy.image || buddy.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <h1 className="text-2xl font-bold mb-1">{buddy.name}</h1>
-                  <p className="text-muted-foreground mb-3">{buddy.age} years old</p>
+                  {buddy.age ? <p className="text-muted-foreground mb-3">{buddy.age} years old</p> : null}
                   <Badge className="bg-success/10 text-success border-success/20 hover:bg-success/20">
                     <Star className="h-4 w-4 mr-1 fill-success" />
                     {buddy.matchPercentage}% Match
