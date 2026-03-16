@@ -3,153 +3,41 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, MapPin, CheckCircle, MessageCircle, Mail, Loader2 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  ArrowLeft, MapPin, CheckCircle, MessageCircle, Loader2, Star, Users,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useBookingStore } from '@/store/bookingStore';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import {
   calculateCompatibility,
-  inferBuddyProfile,
   type UserAnswers,
+  type BuddyProfile,
 } from '@/utils/matchingEngine';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Types ─────────────────────────────────────────────────────────────────────
 
-interface TravelBuddy {
+interface RealBuddy {
   id: string;
   name: string;
-  image: string;
-  age: number;
   location: string;
   bio: string;
   interests: string[];
-  matchPercentage: number;
-  matchReasons: string[];
-  email: string;
-}
-
-/** Shape returned from the quiz_answers table */
-interface QuizAnswersRow {
-  user_id: string;
+  avatar_url: string | null;
+  // quiz preference fields
   travel_style: string | null;
   budget: string | null;
   accommodation: string | null;
   group_size: string | null;
   destination_type: string | null;
+  // computed
+  matchPercentage: number;
+  matchReasons: string[];
 }
 
-// ─── Static buddy pool ────────────────────────────────────────────────────────
-
-const BUDDY_POOL: Omit<TravelBuddy, 'matchPercentage' | 'matchReasons'>[] = [
-  {
-    id: 'a0000000-0000-0000-0000-000000000001',
-    name: 'Priya Sharma',   image: '👩‍🦰', age: 24, location: 'Delhi',
-    bio: 'Adventure seeker and culture enthusiast who loves exploring hidden gems and trying local cuisines!',
-    interests: ['Photography', 'Hiking', 'Food Tours', 'Museums'],
-    email: 'priya.sharma@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000002',
-    name: 'Anmol Verma',   image: '👨‍🏫', age: 26, location: 'Arunachal Pradesh',
-    bio: 'Budget traveler and backpacker who believes the best adventures come from spontaneous decisions.',
-    interests: ['Backpacking', 'Hostels', 'Street Food', 'Local Music'],
-    email: 'anmol.verma@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000003',
-    name: 'Diksha Upadhyay', image: '👩‍💼', age: 28, location: 'Assam',
-    bio: 'Luxury traveler who enjoys fine dining, spa retreats, and creating Instagram-worthy memories.',
-    interests: ['Luxury Hotels', 'Fine Dining', 'Shopping', 'Spas'],
-    email: 'diksha.upadhyay@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000004',
-    name: 'Aarav Singh',   image: '🧑‍🎤', age: 23, location: 'Karnal',
-    bio: 'Nightlife enthusiast and party lover who knows the best clubs in every city!',
-    interests: ['Nightlife', 'Beach Parties', 'Festivals', 'Dancing'],
-    email: 'aarav.singh@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000005',
-    name: 'Kavya Menon',   image: '👩‍🎨', age: 25, location: 'Srinagar',
-    bio: 'Nature lover and outdoor enthusiast who prefers camping under the stars to city hotels.',
-    interests: ['Camping', 'Rock Climbing', 'National Parks', 'Stargazing'],
-    email: 'kavya.menon@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000006',
-    name: 'Rohan Kapoor',  image: '👨‍💻', age: 27, location: 'Bangalore',
-    bio: 'Tech-savvy traveler who loves digital nomad lifestyle and working from exotic locations.',
-    interests: ['Co-working Spaces', 'Cafes', 'Photography', 'Hiking'],
-    email: 'rohan.kapoor@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000007',
-    name: 'Sneha Reddy',   image: '👩‍🔬', age: 29, location: 'Hyderabad',
-    bio: 'History buff and archaeology enthusiast who explores ancient ruins and heritage sites.',
-    interests: ['Museums', 'Heritage Sites', 'Local Guides', 'Photography'],
-    email: 'sneha.reddy@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000008',
-    name: 'Arjun Malhotra', image: '👨‍🍳', age: 30, location: 'Mumbai',
-    bio: 'Foodie traveler on a mission to taste every street food delicacy across India!',
-    interests: ['Street Food', 'Food Tours', 'Cooking Classes', 'Local Markets'],
-    email: 'arjun.malhotra@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000009',
-    name: 'Ishita Bose',   image: '👩‍🎓', age: 22, location: 'Kolkata',
-    bio: 'Student traveler who loves budget stays, making friends in hostels, and collecting stories.',
-    interests: ['Hostels', 'Backpacking', 'Meeting Locals', 'Cultural Exchange'],
-    email: 'ishita.bose@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000010',
-    name: 'Vikram Nair',   image: '👨‍✈️', age: 31, location: 'Kerala',
-    bio: 'Frequent flyer and hotel connoisseur who values comfort and premium travel experiences.',
-    interests: ['Luxury Hotels', 'Business Class', 'Fine Dining', 'Airport Lounges'],
-    email: 'vikram.nair@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000011',
-    name: 'Aisha Patel',   image: '👩‍🎤', age: 26, location: 'Goa',
-    bio: 'Beach lover and water sports enthusiast who lives for sunset parties and ocean adventures.',
-    interests: ['Beach Parties', 'Surfing', 'Diving', 'Festivals'],
-    email: 'aisha.patel@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000012',
-    name: 'Karan Thakur',  image: '👨‍🎨', age: 28, location: 'Himachal Pradesh',
-    bio: 'Mountain enthusiast and trekker who finds peace in the Himalayas and loves adventure sports.',
-    interests: ['Trekking', 'Camping', 'Rock Climbing', 'Mountain Biking'],
-    email: 'karan.thakur@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000013',
-    name: 'Meera Desai',   image: '👩‍⚕️', age: 33, location: 'Pune',
-    bio: 'Wellness traveler seeking yoga retreats, meditation centers, and spiritual experiences.',
-    interests: ['Yoga', 'Meditation', 'Spas', 'Wellness Retreats'],
-    email: 'meera.desai@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000014',
-    name: 'Siddharth Gupta', image: '👨‍🎬', age: 25, location: 'Rajasthan',
-    bio: 'Photography enthusiast capturing stunning landscapes and vibrant cultural festivals.',
-    interests: ['Photography', 'Festivals', 'Heritage Sites', 'Local Culture'],
-    email: 'siddharth.gupta@email.com',
-  },
-  {
-    id: 'a0000000-0000-0000-0000-000000000015',
-    name: 'Tanvi Rao',     image: '👩‍🏫', age: 24, location: 'Chennai',
-    bio: 'Solo female traveler empowering others to explore the world safely and confidently.',
-    interests: ['Solo Travel', 'Hostels', 'Women Groups', 'Cultural Tours'],
-    email: 'tanvi.rao@email.com',
-  },
-];
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
 function getScoreBand(score: number): { label: string; className: string } {
   if (score >= 75) return { label: 'Excellent Match', className: 'bg-success/15 text-success border-success/30' };
@@ -165,8 +53,14 @@ function getBarColor(score: number): string {
   return 'bg-muted-foreground';
 }
 
-/** Map quiz_answers row → UserAnswers expected by the compatibility engine */
-function quizRowToUserAnswers(row: QuizAnswersRow): UserAnswers {
+/** Map quiz_answers row → UserAnswers for the engine */
+function toUserAnswers(row: {
+  travel_style: string | null;
+  budget: string | null;
+  accommodation: string | null;
+  group_size: string | null;
+  destination_type: string | null;
+}): UserAnswers {
   return {
     travel_style:     row.travel_style     ?? undefined,
     budget:           row.budget           ?? undefined,
@@ -176,130 +70,204 @@ function quizRowToUserAnswers(row: QuizAnswersRow): UserAnswers {
   };
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Component ─────────────────────────────────────────────────────────────────
 
 const BuddyMatch = () => {
   const navigate  = useNavigate();
   const { toast } = useToast();
   const { setSelectedBuddy, quizAnswers, setQuizAnswers } = useBookingStore();
 
-  const [matches,  setMatches]  = useState<TravelBuddy[]>([]);
+  const [matches,  setMatches]  = useState<RealBuddy[]>([]);
   const [showAll,  setShowAll]  = useState(false);
   const [loading,  setLoading]  = useState(true);
+  const [selecting, setSelecting] = useState<string | null>(null);
 
   useEffect(() => {
-    loadAnswersAndScore();
+    loadAndScore();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadAnswersAndScore = async () => {
+  // ── Main data-loading function ─────────────────────────────────────────────
+  const loadAndScore = async () => {
     setLoading(true);
-
     try {
-      // 1. Try fetching quiz answers from Supabase (source of truth)
       const { data: { user } } = await supabase.auth.getUser();
-      let answersForEngine: UserAnswers | null = null;
+
+      // 1. Load current user's quiz answers (Supabase is source of truth)
+      let myAnswers: UserAnswers | null = null;
 
       if (user) {
-        const { data: row, error } = await (supabase.from('quiz_answers' as any) as any)
+        const { data: myRow } = await supabase
+          .from('quiz_answers')
           .select('travel_style, budget, accommodation, group_size, destination_type')
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (!error && row) {
-          console.log('[BuddyMatch] Loaded quiz answers from Supabase ✓', row);
-          const mapped = quizRowToUserAnswers(row as QuizAnswersRow);
-          // Sync to Zustand so downstream pages still work
+        if (myRow) {
+          myAnswers = toUserAnswers(myRow);
+          // Keep Zustand in sync for downstream pages
           setQuizAnswers({
-            travel_style:     mapped.travel_style,
-            budget:           mapped.budget,
-            accommodation:    mapped.accommodation,
-            group_size:       mapped.group_size,
-            destination_type: mapped.destination_type,
+            travel_style:     myAnswers.travel_style,
+            budget:           myAnswers.budget,
+            accommodation:    myAnswers.accommodation,
+            group_size:       myAnswers.group_size,
+            destination_type: myAnswers.destination_type,
           });
-          answersForEngine = mapped;
         }
       }
 
-      // 2. Fallback to Zustand store (e.g. not logged in, or first visit)
-      if (!answersForEngine) {
+      // Fallback: Zustand store (e.g. user not logged in / first visit)
+      if (!myAnswers) {
         if (!quizAnswers || Object.keys(quizAnswers).length === 0) {
-          console.log('[Nav] No quiz answers found → redirect to /queera');
           navigate('/queera');
           return;
         }
-        console.log('[BuddyMatch] Using Zustand quiz answers as fallback');
-        answersForEngine = quizAnswers as UserAnswers;
+        myAnswers = quizAnswers as UserAnswers;
       }
 
-      computeMatches(answersForEngine);
-    } catch (err) {
-      console.error('[BuddyMatch] Error loading quiz answers:', err);
-      // Fall back to Zustand
-      if (quizAnswers && Object.keys(quizAnswers).length > 0) {
-        computeMatches(quizAnswers as UserAnswers);
-      } else {
-        navigate('/queera');
+      // 2. Fetch all OTHER users: profiles joined with quiz_answers
+      //    We do two queries and join in JS to stay within Supabase free-tier limits.
+      const excludeId = user?.id ?? 'no-user';
+
+      const [profilesRes, quizRes] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('id, full_name, bio, location, interests, avatar_url')
+          .neq('id', excludeId),
+        supabase
+          .from('quiz_answers')
+          .select('user_id, travel_style, budget, accommodation, group_size, destination_type')
+          .neq('user_id', excludeId),
+      ]);
+
+      if (profilesRes.error) throw profilesRes.error;
+      if (quizRes.error)     throw quizRes.error;
+
+      const profiles   = profilesRes.data ?? [];
+      const quizRows   = quizRes.data ?? [];
+
+      // Build a map: user_id → quiz row
+      const quizByUserId = new Map(quizRows.map(r => [r.user_id, r]));
+
+      // 3. Build buddy objects (only users who have completed the quiz)
+      const buddyCandidates: RealBuddy[] = [];
+
+      for (const p of profiles) {
+        const quiz = quizByUserId.get(p.id);
+        if (!quiz) continue; // skip users who haven't taken the quiz
+
+        const buddyProfile: BuddyProfile = {
+          travel_style:     quiz.travel_style     ?? undefined,
+          budget:           quiz.budget           ?? undefined,
+          accommodation:    quiz.accommodation    ?? undefined,
+          group_size:       quiz.group_size       ?? undefined,
+          destination_type: quiz.destination_type ?? undefined,
+          interests:        (p.interests as string[]) ?? [],
+        };
+
+        const { score, reasons } = calculateCompatibility(myAnswers!, buddyProfile);
+
+        buddyCandidates.push({
+          id:            p.id,
+          name:          p.full_name || 'Anonymous Traveler',
+          location:      p.location  || 'Unknown',
+          bio:           p.bio       || 'No bio yet.',
+          interests:     (p.interests as string[]) || [],
+          avatar_url:    p.avatar_url,
+          travel_style:  quiz.travel_style,
+          budget:        quiz.budget,
+          accommodation: quiz.accommodation,
+          group_size:    quiz.group_size,
+          destination_type: quiz.destination_type,
+          matchPercentage: score,
+          matchReasons:    reasons,
+        });
       }
+
+      // 4. Sort descending; keep top 10
+      buddyCandidates.sort((a, b) => b.matchPercentage - a.matchPercentage);
+      setMatches(buddyCandidates.slice(0, 10));
+
+    } catch (err) {
+      console.error('[BuddyMatch] Error:', err);
+      toast({
+        title: 'Could not load matches',
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const computeMatches = (answers: UserAnswers) => {
-    const scored: TravelBuddy[] = BUDDY_POOL.map(buddy => {
-      const buddyProfile = inferBuddyProfile(buddy.interests);
-      const { score, reasons } = calculateCompatibility(answers, buddyProfile);
-      return { ...buddy, matchPercentage: score, matchReasons: reasons };
-    });
-    scored.sort((a, b) => b.matchPercentage - a.matchPercentage);
-    setMatches(scored);
-  };
-
-  const handleSelectBuddy = async (buddy: TravelBuddy) => {
-    localStorage.setItem('selectedBuddy', JSON.stringify(buddy));
-    setSelectedBuddy({
-      id: buddy.id,
-      name: buddy.name,
-      image: buddy.image,
-      age: buddy.age,
-      location: buddy.location,
-      bio: buddy.bio,
-      interests: buddy.interests,
-      matchPercentage: buddy.matchPercentage,
-    });
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { error } = await supabase.from('buddy_matches').insert({
-        user1_id: user.id,
-        user2_id: buddy.id,
-        trip_id: 'general',
-        status: 'accepted',
+  // ── Select a buddy ─────────────────────────────────────────────────────────
+  const handleSelectBuddy = async (buddy: RealBuddy) => {
+    setSelecting(buddy.id);
+    try {
+      // Store for BuddyDetails page
+      localStorage.setItem('selectedBuddy', JSON.stringify(buddy));
+      setSelectedBuddy({
+        id:              buddy.id,
+        name:            buddy.name,
+        image:           buddy.avatar_url || '🧑',
+        age:             0,
+        location:        buddy.location,
+        bio:             buddy.bio,
+        interests:       buddy.interests,
+        matchPercentage: buddy.matchPercentage,
       });
-      if (error) {
-        console.error('[BuddyMatch] Error creating buddy match:', error);
-      } else {
-        console.log('[Nav] Buddy selected → /buddy-details');
-        toast({ title: `Matched with ${buddy.name}! 🎉`, description: 'You can now chat in Messages' });
-      }
-    }
 
-    navigate('/buddy-details');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Check for existing match to avoid duplicates
+        const { data: existing } = await supabase
+          .from('buddy_matches')
+          .select('id')
+          .eq('user1_id', user.id)
+          .eq('user2_id', buddy.id)
+          .maybeSingle();
+
+        if (!existing) {
+          const { error } = await supabase.from('buddy_matches').insert({
+            user1_id: user.id,
+            user2_id: buddy.id,
+            trip_id:  'general',
+            status:   'pending',
+          });
+          if (error) throw error;
+        }
+
+        toast({
+          title: `Request sent to ${buddy.name}! 🎉`,
+          description: `${buddy.matchPercentage}% compatibility — check Messages to chat`,
+        });
+      }
+
+      navigate('/buddy-details');
+    } catch (err) {
+      console.error('[BuddyMatch] Select error:', err);
+      toast({ title: 'Failed to select buddy', variant: 'destructive' });
+    } finally {
+      setSelecting(null);
+    }
   };
 
   const visibleMatches = showAll ? matches : matches.slice(0, 4);
+  const bestMatchId    = matches[0]?.id;
 
+  // ── Loading state ──────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10">
         <div className="text-center">
           <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading your preferences…</p>
+          <p className="text-muted-foreground">Finding your travel matches…</p>
         </div>
       </div>
     );
   }
 
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 py-8">
       <div className="container mx-auto px-4 max-w-6xl">
@@ -322,35 +290,77 @@ const BuddyMatch = () => {
             </span>
           </h1>
           <p className="text-lg text-muted-foreground">
-            Scored by our Compatibility Engine — no randomness, just real alignment.
+            {matches.length > 0
+              ? `Scored by our Compatibility Engine — ${matches.length} real user${matches.length !== 1 ? 's' : ''} matched`
+              : 'Scored by our Compatibility Engine — no randomness, just real alignment.'}
           </p>
         </div>
 
+        {/* No real users yet — helpful empty state */}
+        {matches.length === 0 && (
+          <div className="text-center py-16">
+            <div className="text-5xl mb-4">
+              <Users className="h-16 w-16 mx-auto text-muted-foreground/40" />
+            </div>
+            <h2 className="text-2xl font-semibold mb-2 text-foreground">No matches yet</h2>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              You're among the first users! Matches will appear here as more people sign up and complete the quiz.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/queera')}
+              className="border-primary text-primary hover:bg-primary/5"
+            >
+              Retake Quiz
+            </Button>
+          </div>
+        )}
+
         {/* Matches Grid */}
-        {matches.length > 0 ? (
+        {matches.length > 0 && (
           <>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {visibleMatches.map((buddy, index) => {
-                const band     = getScoreBand(buddy.matchPercentage);
-                const barColor = getBarColor(buddy.matchPercentage);
+                const band      = getScoreBand(buddy.matchPercentage);
+                const barColor  = getBarColor(buddy.matchPercentage);
+                const isBest    = buddy.id === bestMatchId;
+                const initials  = buddy.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 
                 return (
                   <Card
                     key={buddy.id}
-                    className="card-hover card-shadow border border-border/50 animate-bounce-in flex flex-col"
+                    className={`card-hover card-shadow border flex flex-col animate-bounce-in ${
+                      isBest ? 'border-primary/50 ring-2 ring-primary/20' : 'border-border/50'
+                    }`}
                     style={{ animationDelay: `${index * 0.08}s` }}
                   >
                     <CardHeader className="text-center pb-3">
-                      <div className="relative mx-auto mb-3">
-                        <div className="text-6xl leading-none">{buddy.image}</div>
-                        <Badge className={`absolute -top-2 -right-4 text-xs border ${band.className}`}>
+                      {/* Best Match badge */}
+                      {isBest && (
+                        <div className="flex justify-center mb-2">
+                          <Badge className="bg-primary/15 text-primary border-primary/30 gap-1 text-xs px-3">
+                            <Star className="h-3 w-3 fill-primary" />
+                            Best Match
+                          </Badge>
+                        </div>
+                      )}
+
+                      {/* Avatar */}
+                      <div className="relative mx-auto mb-3 w-fit">
+                        <Avatar className="h-16 w-16 text-2xl">
+                          <AvatarImage src={buddy.avatar_url || ''} alt={buddy.name} />
+                          <AvatarFallback className="ocean-gradient text-white text-lg font-bold">
+                            {initials}
+                          </AvatarFallback>
+                        </Avatar>
+                        <Badge
+                          className={`absolute -top-2 -right-4 text-xs border ${band.className}`}
+                        >
                           {buddy.matchPercentage}%
                         </Badge>
                       </div>
 
-                      <CardTitle className="text-lg leading-snug">
-                        {buddy.name}, {buddy.age}
-                      </CardTitle>
+                      <CardTitle className="text-lg leading-snug">{buddy.name}</CardTitle>
 
                       <div className="flex items-center justify-center text-muted-foreground text-sm gap-1">
                         <MapPin className="h-3.5 w-3.5" />
@@ -395,24 +405,31 @@ const BuddyMatch = () => {
                       </div>
 
                       {/* Interests */}
-                      <div className="flex flex-wrap gap-1">
-                        {buddy.interests.slice(0, 3).map((interest, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">{interest}</Badge>
-                        ))}
-                        {buddy.interests.length > 3 && (
-                          <Badge variant="outline" className="text-xs text-muted-foreground">
-                            +{buddy.interests.length - 3}
-                          </Badge>
-                        )}
-                      </div>
+                      {buddy.interests.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {buddy.interests.slice(0, 3).map((interest, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">{interest}</Badge>
+                          ))}
+                          {buddy.interests.length > 3 && (
+                            <Badge variant="outline" className="text-xs text-muted-foreground">
+                              +{buddy.interests.length - 3}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
 
                       {/* Actions */}
                       <div className="flex gap-2 mt-auto">
                         <Button
                           onClick={() => handleSelectBuddy(buddy)}
+                          disabled={selecting === buddy.id}
                           className="flex-1 ocean-gradient hover:opacity-90 text-sm"
                         >
-                          <Mail className="h-4 w-4 mr-2" />
+                          {selecting === buddy.id ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                          )}
                           Select Buddy
                         </Button>
                         <Button
@@ -443,11 +460,6 @@ const BuddyMatch = () => {
               </div>
             )}
           </>
-        ) : (
-          <div className="text-center py-16">
-            <div className="text-5xl mb-4">🔍</div>
-            <p className="text-xl text-muted-foreground">Calculating your matches…</p>
-          </div>
         )}
 
         {/* Retake quiz */}
