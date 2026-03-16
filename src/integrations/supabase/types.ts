@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      buddies: {
+        Row: {
+          accommodation: string | null
+          age: number | null
+          avatar: string | null
+          avatar_url: string | null
+          bio: string | null
+          budget: string | null
+          created_at: string | null
+          destination_type: string | null
+          email: string | null
+          group_size: string | null
+          id: string
+          interests: string[] | null
+          location: string | null
+          name: string | null
+          travel_style: string | null
+        }
+        Insert: {
+          accommodation?: string | null
+          age?: number | null
+          avatar?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          budget?: string | null
+          created_at?: string | null
+          destination_type?: string | null
+          email?: string | null
+          group_size?: string | null
+          id?: string
+          interests?: string[] | null
+          location?: string | null
+          name?: string | null
+          travel_style?: string | null
+        }
+        Update: {
+          accommodation?: string | null
+          age?: number | null
+          avatar?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          budget?: string | null
+          created_at?: string | null
+          destination_type?: string | null
+          email?: string | null
+          group_size?: string | null
+          id?: string
+          interests?: string[] | null
+          location?: string | null
+          name?: string | null
+          travel_style?: string | null
+        }
+        Relationships: []
+      }
       buddy_matches: {
         Row: {
           created_at: string
