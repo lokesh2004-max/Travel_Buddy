@@ -58,17 +58,9 @@ const BuddyDetails = () => {
   }, [navigate, setSelectedBuddy]);
 
   const handleEmailClick = () => {
-    if (buddy) {
+    if (buddy?.email) {
       const subject = encodeURIComponent(`Travel Buddy Connection - Let's Explore Together! 🌍`);
-      const body = encodeURIComponent(`Hi ${buddy.name.split(' ')[0]},
-
-I found you through Travel Buddy and we're a ${buddy.matchPercentage}% match! I'd love to connect and potentially plan some amazing adventures together.
-
-Looking forward to hearing from you!
-
-Best regards,
-Your Travel Buddy Match`);
-      
+      const body = encodeURIComponent(`Hi ${buddy.name.split(' ')[0]},\n\nI found you through Travel Buddy and we're a ${buddy.matchPercentage}% match! I'd love to connect.\n\nBest regards,\nYour Travel Buddy Match`);
       window.location.href = `mailto:${buddy.email}?subject=${subject}&body=${body}`;
     }
   };
