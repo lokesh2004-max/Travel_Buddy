@@ -12,13 +12,20 @@ interface TravelBuddy {
   id: string;
   name: string;
   image: string;
-  age: number;
+  age?: number;
   location: string;
   bio: string;
   interests: string[];
   matchPercentage: number;
-  matchReasons: string[];
-  email: string;
+  matchReasons?: string[];
+  email?: string;
+  // real-user fields
+  avatar_url?: string | null;
+  travel_style?: string | null;
+  budget?: string | null;
+  accommodation?: string | null;
+  group_size?: string | null;
+  destination_type?: string | null;
 }
 
 const BuddyDetails = () => {
