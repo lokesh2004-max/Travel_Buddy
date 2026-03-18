@@ -281,15 +281,15 @@ const BuddyMatch = () => {
           </p>
         </div>
 
-        {/* No real users yet — helpful empty state */}
+        {/* Empty state */}
         {matches.length === 0 && (
           <div className="text-center py-16">
             <div className="text-5xl mb-4">
               <Users className="h-16 w-16 mx-auto text-muted-foreground/40" />
             </div>
-            <h2 className="text-2xl font-semibold mb-2 text-foreground">No matches yet</h2>
+            <h2 className="text-2xl font-semibold mb-2 text-foreground">No travel buddies available yet</h2>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              You're among the first users! Matches will appear here as more people sign up and complete the quiz.
+              The buddy pool is empty. Check back soon or retake the quiz to update your preferences.
             </p>
             <Button
               variant="outline"
