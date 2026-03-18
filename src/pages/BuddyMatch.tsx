@@ -116,7 +116,7 @@ const BuddyMatch = () => {
         }
       }
 
-      // Fallback: Zustand store (e.g. user not logged in / first visit)
+      // Fallback: Zustand store (e.g. quiz not yet in DB but answered in-session)
       if (!myAnswers) {
         if (!quizAnswers || Object.keys(quizAnswers).length === 0) {
           navigate('/queera');
@@ -125,64 +125,49 @@ const BuddyMatch = () => {
         myAnswers = quizAnswers as UserAnswers;
       }
 
-      // 2. Fetch all OTHER users: profiles joined with quiz_answers
-      //    We do two queries and join in JS to stay within Supabase free-tier limits.
-      const excludeId = user?.id ?? 'no-user';
+      // 2. Fetch all buddies from the pre-seeded buddies dataset table
+      const { data: buddiesData, error: buddiesError } = await supabase
+        .from('buddies')
+        .select('id, name, age, location, bio, interests, avatar_url, avatar, travel_style, budget, accommodation, group_size, destination_type');
 
-      const [profilesRes, quizRes] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('id, full_name, bio, location, interests, avatar_url')
-          .neq('id', excludeId),
-        supabase
-          .from('quiz_answers')
-          .select('user_id, travel_style, budget, accommodation, group_size, destination_type')
-          .neq('user_id', excludeId),
-      ]);
+      if (buddiesError) throw buddiesError;
 
-      if (profilesRes.error) throw profilesRes.error;
-      if (quizRes.error)     throw quizRes.error;
+      const allBuddies = buddiesData ?? [];
 
-      const profiles   = profilesRes.data ?? [];
-      const quizRows   = quizRes.data ?? [];
+      if (allBuddies.length === 0) {
+        setMatches([]);
+        return;
+      }
 
-      // Build a map: user_id → quiz row
-      const quizByUserId = new Map(quizRows.map(r => [r.user_id, r]));
-
-      // 3. Build buddy objects (only users who have completed the quiz)
-      const buddyCandidates: RealBuddy[] = [];
-
-      for (const p of profiles) {
-        const quiz = quizByUserId.get(p.id);
-        if (!quiz) continue; // skip users who haven't taken the quiz
-
+      // 3. Score every buddy against the user's quiz answers
+      const buddyCandidates: RealBuddy[] = allBuddies.map(b => {
         const buddyProfile: BuddyProfile = {
-          travel_style:     quiz.travel_style     ?? undefined,
-          budget:           quiz.budget           ?? undefined,
-          accommodation:    quiz.accommodation    ?? undefined,
-          group_size:       quiz.group_size       ?? undefined,
-          destination_type: quiz.destination_type ?? undefined,
-          interests:        (p.interests as string[]) ?? [],
+          travel_style:     b.travel_style     ?? undefined,
+          budget:           b.budget           ?? undefined,
+          accommodation:    b.accommodation    ?? undefined,
+          group_size:       b.group_size       ?? undefined,
+          destination_type: b.destination_type ?? undefined,
+          interests:        (b.interests as string[]) ?? [],
         };
 
         const { score, reasons } = calculateCompatibility(myAnswers!, buddyProfile);
 
-        buddyCandidates.push({
-          id:            p.id,
-          name:          p.full_name || 'Anonymous Traveler',
-          location:      p.location  || 'Unknown',
-          bio:           p.bio       || 'No bio yet.',
-          interests:     (p.interests as string[]) || [],
-          avatar_url:    p.avatar_url,
-          travel_style:  quiz.travel_style,
-          budget:        quiz.budget,
-          accommodation: quiz.accommodation,
-          group_size:    quiz.group_size,
-          destination_type: quiz.destination_type,
-          matchPercentage: score,
-          matchReasons:    reasons,
-        });
-      }
+        return {
+          id:               b.id,
+          name:             b.name      || 'Anonymous Traveler',
+          location:         b.location  || 'Unknown',
+          bio:              b.bio       || 'No bio yet.',
+          interests:        (b.interests as string[]) || [],
+          avatar_url:       b.avatar_url ?? b.avatar ?? null,
+          travel_style:     b.travel_style,
+          budget:           b.budget,
+          accommodation:    b.accommodation,
+          group_size:       b.group_size,
+          destination_type: b.destination_type,
+          matchPercentage:  score,
+          matchReasons:     reasons,
+        };
+      });
 
       // 4. Sort descending; keep top 10
       buddyCandidates.sort((a, b) => b.matchPercentage - a.matchPercentage);
@@ -296,15 +281,15 @@ const BuddyMatch = () => {
           </p>
         </div>
 
-        {/* No real users yet — helpful empty state */}
+        {/* Empty state */}
         {matches.length === 0 && (
           <div className="text-center py-16">
             <div className="text-5xl mb-4">
               <Users className="h-16 w-16 mx-auto text-muted-foreground/40" />
             </div>
-            <h2 className="text-2xl font-semibold mb-2 text-foreground">No matches yet</h2>
+            <h2 className="text-2xl font-semibold mb-2 text-foreground">No travel buddies available yet</h2>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              You're among the first users! Matches will appear here as more people sign up and complete the quiz.
+              The buddy pool is empty. Check back soon or retake the quiz to update your preferences.
             </p>
             <Button
               variant="outline"
