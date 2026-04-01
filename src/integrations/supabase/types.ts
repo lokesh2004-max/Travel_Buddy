@@ -18,7 +18,6 @@ export type Database = {
         Row: {
           accommodation: string | null
           age: number | null
-          avatar: string | null
           avatar_url: string | null
           bio: string | null
           budget: string | null
@@ -35,7 +34,6 @@ export type Database = {
         Insert: {
           accommodation?: string | null
           age?: number | null
-          avatar?: string | null
           avatar_url?: string | null
           bio?: string | null
           budget?: string | null
@@ -52,7 +50,6 @@ export type Database = {
         Update: {
           accommodation?: string | null
           age?: number | null
-          avatar?: string | null
           avatar_url?: string | null
           bio?: string | null
           budget?: string | null
