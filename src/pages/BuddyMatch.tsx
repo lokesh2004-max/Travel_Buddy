@@ -128,7 +128,7 @@ const BuddyMatch = () => {
       // 2. Fetch all buddies from the pre-seeded buddies dataset table
       const { data: buddiesData, error: buddiesError } = await supabase
         .from('buddies')
-        .select('id, name, age, location, bio, interests, avatar_url, avatar, travel_style, budget, accommodation, group_size, destination_type');
+        .select('id, name, age, location, bio, interests, avatar_url, travel_style, budget, accommodation, group_size, destination_type');
 
       if (buddiesError) throw buddiesError;
 
@@ -158,7 +158,7 @@ const BuddyMatch = () => {
           location:         b.location  || 'Unknown',
           bio:              b.bio       || 'No bio yet.',
           interests:        (b.interests as string[]) || [],
-          avatar_url:       b.avatar_url ?? b.avatar ?? null,
+          avatar_url:       b.avatar_url ?? null,
           travel_style:     b.travel_style,
           budget:           b.budget,
           accommodation:    b.accommodation,
