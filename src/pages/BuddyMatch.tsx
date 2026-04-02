@@ -158,7 +158,7 @@ const BuddyMatch = () => {
           location:         b.location  || 'Unknown',
           bio:              b.bio       || 'No bio yet.',
           interests:        (b.interests as string[]) || [],
-          avatar_url:       b.avatar_url ?? b.avatar ?? null,
+          avatar_url:       b.avatar_url ?? null,
           travel_style:     b.travel_style,
           budget:           b.budget,
           accommodation:    b.accommodation,
