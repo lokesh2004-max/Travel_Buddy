@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   ArrowLeft, MapPin, CheckCircle, MessageCircle, Loader2, Star, Users,
@@ -26,13 +25,11 @@ interface RealBuddy {
   bio: string;
   interests: string[];
   avatar_url: string | null;
-  // quiz preference fields
   travel_style: string | null;
   budget: string | null;
   accommodation: string | null;
   group_size: string | null;
   destination_type: string | null;
-  // computed
   matchPercentage: number;
   matchReasons: string[];
 }
@@ -53,7 +50,6 @@ function getBarColor(score: number): string {
   return 'bg-muted-foreground';
 }
 
-/** Map quiz_answers row → UserAnswers for the engine */
 function toUserAnswers(row: {
   travel_style: string | null;
   budget: string | null;
@@ -81,31 +77,34 @@ const BuddyMatch = () => {
   const [showAll,  setShowAll]  = useState(false);
   const [loading,  setLoading]  = useState(true);
   const [selecting, setSelecting] = useState<string | null>(null);
+  const [requestedIds, setRequestedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadAndScore();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Main data-loading function ─────────────────────────────────────────────
   const loadAndScore = async () => {
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
-      // 1. Load current user's quiz answers (Supabase is source of truth)
       let myAnswers: UserAnswers | null = null;
 
       if (user) {
-        const { data: myRow } = await supabase
-          .from('quiz_answers')
-          .select('travel_style, budget, accommodation, group_size, destination_type')
-          .eq('user_id', user.id)
-          .maybeSingle();
+        // Load quiz answers and existing requests in parallel
+        const [quizRes, requestsRes] = await Promise.all([
+          supabase.from('quiz_answers')
+            .select('travel_style, budget, accommodation, group_size, destination_type')
+            .eq('user_id', user.id)
+            .maybeSingle(),
+          supabase.from('buddy_matches')
+            .select('buddy_id')
+            .eq('user_id', user.id),
+        ]);
 
-        if (myRow) {
-          myAnswers = toUserAnswers(myRow);
-          // Keep Zustand in sync for downstream pages
+        if (quizRes.data) {
+          myAnswers = toUserAnswers(quizRes.data);
           setQuizAnswers({
             travel_style:     myAnswers.travel_style,
             budget:           myAnswers.budget,
@@ -114,9 +113,13 @@ const BuddyMatch = () => {
             destination_type: myAnswers.destination_type,
           });
         }
+
+        // Track already-requested buddy IDs
+        if (requestsRes.data) {
+          setRequestedIds(new Set(requestsRes.data.map(r => r.buddy_id).filter(Boolean) as string[]));
+        }
       }
 
-      // Fallback: Zustand store (e.g. quiz not yet in DB but answered in-session)
       if (!myAnswers) {
         if (!quizAnswers || Object.keys(quizAnswers).length === 0) {
           navigate('/queera');
@@ -125,21 +128,16 @@ const BuddyMatch = () => {
         myAnswers = quizAnswers as UserAnswers;
       }
 
-      // 2. Fetch all buddies from the pre-seeded buddies dataset table
+      // Fetch buddies (using full_name now)
       const { data: buddiesData, error: buddiesError } = await supabase
         .from('buddies')
-        .select('id, name, age, location, bio, interests, avatar_url, travel_style, budget, accommodation, group_size, destination_type');
+        .select('id, full_name, age, location, bio, interests, avatar_url, travel_style, budget, accommodation, group_size, destination_type');
 
       if (buddiesError) throw buddiesError;
 
       const allBuddies = buddiesData ?? [];
+      if (allBuddies.length === 0) { setMatches([]); return; }
 
-      if (allBuddies.length === 0) {
-        setMatches([]);
-        return;
-      }
-
-      // 3. Score every buddy against the user's quiz answers
       const buddyCandidates: RealBuddy[] = allBuddies.map(b => {
         const buddyProfile: BuddyProfile = {
           travel_style:     b.travel_style     ?? undefined,
@@ -154,7 +152,7 @@ const BuddyMatch = () => {
 
         return {
           id:               b.id,
-          name:             b.name      || 'Anonymous Traveler',
+          name:             b.full_name || 'Anonymous Traveler',
           location:         b.location  || 'Unknown',
           bio:              b.bio       || 'No bio yet.',
           interests:        (b.interests as string[]) || [],
@@ -169,27 +167,19 @@ const BuddyMatch = () => {
         };
       });
 
-      // 4. Sort descending; keep top 10
       buddyCandidates.sort((a, b) => b.matchPercentage - a.matchPercentage);
       setMatches(buddyCandidates.slice(0, 10));
-
     } catch (err) {
       console.error('[BuddyMatch] Error:', err);
-      toast({
-        title: 'Could not load matches',
-        description: 'Please try again.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Could not load matches', description: 'Please try again.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
   };
 
-  // ── Select a buddy ─────────────────────────────────────────────────────────
   const handleSelectBuddy = async (buddy: RealBuddy) => {
     setSelecting(buddy.id);
     try {
-      // Store for BuddyDetails page
       localStorage.setItem('selectedBuddy', JSON.stringify(buddy));
       setSelectedBuddy({
         id:              buddy.id,
@@ -204,28 +194,38 @@ const BuddyMatch = () => {
 
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // Check for existing match to avoid duplicates
+        // Duplicate check
         const { data: existing } = await supabase
           .from('buddy_matches')
           .select('id')
-          .eq('user1_id', user.id)
-          .eq('user2_id', buddy.id)
+          .eq('user_id', user.id)
+          .eq('buddy_id', buddy.id)
           .maybeSingle();
 
-        if (!existing) {
+        if (existing) {
+          toast({ title: 'Already Requested ✅', description: `You've already sent a request to ${buddy.name}.` });
+        } else {
           const { error } = await supabase.from('buddy_matches').insert({
-            user1_id: user.id,
-            user2_id: buddy.id,
-            trip_id:  'general',
-            status:   'pending',
+            user_id: user.id,
+            buddy_id: buddy.id,
+            status: 'pending',
           });
           if (error) throw error;
-        }
 
-        toast({
-          title: `Request sent to ${buddy.name}! 🎉`,
-          description: `${buddy.matchPercentage}% compatibility — check Messages to chat`,
-        });
+          // Insert notification
+          await supabase.from('notifications').insert({
+            user_id: user.id,
+            title: 'Buddy Request Sent',
+            message: `You sent a buddy request to ${buddy.name} (${buddy.matchPercentage}% match).`,
+          }).then(() => {}, () => {}); // ignore errors for notification
+
+          setRequestedIds(prev => new Set(prev).add(buddy.id));
+
+          toast({
+            title: `Request sent to ${buddy.name}! 🎉`,
+            description: `${buddy.matchPercentage}% compatibility — check Messages to chat`,
+          });
+        }
       }
 
       navigate('/buddy-details');
@@ -240,7 +240,6 @@ const BuddyMatch = () => {
   const visibleMatches = showAll ? matches : matches.slice(0, 4);
   const bestMatchId    = matches[0]?.id;
 
-  // ── Loading state ──────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10">
@@ -252,31 +251,23 @@ const BuddyMatch = () => {
     );
   }
 
-  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-secondary/10 py-8">
       <div className="container mx-auto px-4 max-w-6xl">
 
         {/* Header */}
         <div className="text-center mb-10 animate-slide-in-up relative">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/queera')}
-            className="absolute top-0 left-0"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Quiz
+          <Button variant="ghost" onClick={() => navigate('/queera')} className="absolute top-0 left-0">
+            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Quiz
           </Button>
 
           <h1 className="text-4xl md:text-5xl font-bold mb-3 pt-8">
             Your Perfect Travel
-            <span className="block ocean-gradient bg-clip-text text-transparent">
-              Buddy Matches! 🎯
-            </span>
+            <span className="block ocean-gradient bg-clip-text text-transparent">Buddy Matches! 🎯</span>
           </h1>
           <p className="text-lg text-muted-foreground">
             {matches.length > 0
-              ? `Scored by our Compatibility Engine — ${matches.length} real user${matches.length !== 1 ? 's' : ''} matched`
+              ? `Scored by our Compatibility Engine — ${matches.length} buddies matched`
               : 'Scored by our Compatibility Engine — no randomness, just real alignment.'}
           </p>
         </div>
@@ -284,18 +275,12 @@ const BuddyMatch = () => {
         {/* Empty state */}
         {matches.length === 0 && (
           <div className="text-center py-16">
-            <div className="text-5xl mb-4">
-              <Users className="h-16 w-16 mx-auto text-muted-foreground/40" />
-            </div>
+            <Users className="h-16 w-16 mx-auto text-muted-foreground/40 mb-4" />
             <h2 className="text-2xl font-semibold mb-2 text-foreground">No travel buddies available yet</h2>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               The buddy pool is empty. Check back soon or retake the quiz to update your preferences.
             </p>
-            <Button
-              variant="outline"
-              onClick={() => navigate('/queera')}
-              className="border-primary text-primary hover:bg-primary/5"
-            >
+            <Button variant="outline" onClick={() => navigate('/queera')} className="border-primary text-primary hover:bg-primary/5">
               Retake Quiz
             </Button>
           </div>
@@ -310,6 +295,7 @@ const BuddyMatch = () => {
                 const barColor  = getBarColor(buddy.matchPercentage);
                 const isBest    = buddy.id === bestMatchId;
                 const initials  = buddy.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                const alreadyRequested = requestedIds.has(buddy.id);
 
                 return (
                   <Card
@@ -320,41 +306,29 @@ const BuddyMatch = () => {
                     style={{ animationDelay: `${index * 0.08}s` }}
                   >
                     <CardHeader className="text-center pb-3">
-                      {/* Best Match badge */}
                       {isBest && (
                         <div className="flex justify-center mb-2">
                           <Badge className="bg-primary/15 text-primary border-primary/30 gap-1 text-xs px-3">
-                            <Star className="h-3 w-3 fill-primary" />
-                            Best Match
+                            <Star className="h-3 w-3 fill-primary" /> Best Match
                           </Badge>
                         </div>
                       )}
 
-                      {/* Avatar */}
                       <div className="relative mx-auto mb-3 w-fit">
                         <Avatar className="h-16 w-16 text-2xl">
                           <AvatarImage src={buddy.avatar_url || ''} alt={buddy.name} />
-                          <AvatarFallback className="ocean-gradient text-white text-lg font-bold">
-                            {initials}
-                          </AvatarFallback>
+                          <AvatarFallback className="ocean-gradient text-white text-lg font-bold">{initials}</AvatarFallback>
                         </Avatar>
-                        <Badge
-                          className={`absolute -top-2 -right-4 text-xs border ${band.className}`}
-                        >
+                        <Badge className={`absolute -top-2 -right-4 text-xs border ${band.className}`}>
                           {buddy.matchPercentage}%
                         </Badge>
                       </div>
 
                       <CardTitle className="text-lg leading-snug">{buddy.name}</CardTitle>
-
                       <div className="flex items-center justify-center text-muted-foreground text-sm gap-1">
-                        <MapPin className="h-3.5 w-3.5" />
-                        {buddy.location}
+                        <MapPin className="h-3.5 w-3.5" /> {buddy.location}
                       </div>
-
-                      <Badge variant="outline" className={`mx-auto mt-1 text-xs ${band.className}`}>
-                        {band.label}
-                      </Badge>
+                      <Badge variant="outline" className={`mx-auto mt-1 text-xs ${band.className}`}>{band.label}</Badge>
                     </CardHeader>
 
                     <CardContent className="pt-0 flex flex-col gap-4 flex-1">
@@ -367,23 +341,17 @@ const BuddyMatch = () => {
                           <span className="text-xs font-bold text-foreground">{buddy.matchPercentage}%</span>
                         </div>
                         <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-700 ${barColor}`}
-                            style={{ width: `${buddy.matchPercentage}%` }}
-                          />
+                          <div className={`h-full rounded-full transition-all duration-700 ${barColor}`} style={{ width: `${buddy.matchPercentage}%` }} />
                         </div>
                       </div>
 
                       {/* Match reasons */}
                       <div>
-                        <p className="text-xs font-semibold mb-1.5 text-success uppercase tracking-wide">
-                          Why you match
-                        </p>
+                        <p className="text-xs font-semibold mb-1.5 text-success uppercase tracking-wide">Why you match</p>
                         <ul className="space-y-1">
                           {buddy.matchReasons.map((reason, idx) => (
                             <li key={idx} className="flex items-start gap-1.5 text-xs text-muted-foreground">
-                              <CheckCircle className="h-3.5 w-3.5 mt-0.5 shrink-0 text-success" />
-                              {reason}
+                              <CheckCircle className="h-3.5 w-3.5 mt-0.5 shrink-0 text-success" /> {reason}
                             </li>
                           ))}
                         </ul>
@@ -396,9 +364,7 @@ const BuddyMatch = () => {
                             <Badge key={idx} variant="secondary" className="text-xs">{interest}</Badge>
                           ))}
                           {buddy.interests.length > 3 && (
-                            <Badge variant="outline" className="text-xs text-muted-foreground">
-                              +{buddy.interests.length - 3}
-                            </Badge>
+                            <Badge variant="outline" className="text-xs text-muted-foreground">+{buddy.interests.length - 3}</Badge>
                           )}
                         </div>
                       )}
@@ -407,15 +373,17 @@ const BuddyMatch = () => {
                       <div className="flex gap-2 mt-auto">
                         <Button
                           onClick={() => handleSelectBuddy(buddy)}
-                          disabled={selecting === buddy.id}
+                          disabled={selecting === buddy.id || alreadyRequested}
                           className="flex-1 ocean-gradient hover:opacity-90 text-sm"
                         >
                           {selecting === buddy.id ? (
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : alreadyRequested ? (
+                            <CheckCircle className="h-4 w-4 mr-2" />
                           ) : (
                             <CheckCircle className="h-4 w-4 mr-2" />
                           )}
-                          Select Buddy
+                          {alreadyRequested ? 'Already Requested' : 'Select Buddy'}
                         </Button>
                         <Button
                           variant="outline"
@@ -435,11 +403,7 @@ const BuddyMatch = () => {
 
             {!showAll && matches.length > 4 && (
               <div className="text-center mt-8">
-                <Button
-                  onClick={() => setShowAll(true)}
-                  size="lg"
-                  className="ocean-gradient hover:opacity-90 px-8"
-                >
+                <Button onClick={() => setShowAll(true)} size="lg" className="ocean-gradient hover:opacity-90 px-8">
                   See More Buddies ({matches.length - 4} more)
                 </Button>
               </div>
@@ -449,11 +413,7 @@ const BuddyMatch = () => {
 
         {/* Retake quiz */}
         <div className="text-center mt-12">
-          <Button
-            variant="outline"
-            onClick={() => navigate('/queera')}
-            className="border-primary text-primary hover:bg-primary/5"
-          >
+          <Button variant="outline" onClick={() => navigate('/queera')} className="border-primary text-primary hover:bg-primary/5">
             Retake Quiz
           </Button>
         </div>

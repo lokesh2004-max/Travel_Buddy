@@ -15,6 +15,7 @@ import MessagesPage from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import MyRequests from "./pages/MyRequests";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
           {/* ── Main flow ── */}
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/my-requests" element={<MyRequests />} />
           <Route path="/profile" element={<Profile />} />
 
           {/* ── Search ── */}

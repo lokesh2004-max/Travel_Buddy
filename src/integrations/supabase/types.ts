@@ -24,11 +24,11 @@ export type Database = {
           created_at: string | null
           destination_type: string | null
           email: string | null
+          full_name: string | null
           group_size: string | null
           id: string
           interests: string[] | null
           location: string | null
-          name: string | null
           travel_style: string | null
         }
         Insert: {
@@ -40,11 +40,11 @@ export type Database = {
           created_at?: string | null
           destination_type?: string | null
           email?: string | null
+          full_name?: string | null
           group_size?: string | null
           id?: string
           interests?: string[] | null
           location?: string | null
-          name?: string | null
           travel_style?: string | null
         }
         Update: {
@@ -56,42 +56,39 @@ export type Database = {
           created_at?: string | null
           destination_type?: string | null
           email?: string | null
+          full_name?: string | null
           group_size?: string | null
           id?: string
           interests?: string[] | null
           location?: string | null
-          name?: string | null
           travel_style?: string | null
         }
         Relationships: []
       }
       buddy_matches: {
         Row: {
+          buddy_id: string | null
           created_at: string
           id: string
           status: string
-          trip_id: string
           updated_at: string
-          user1_id: string
-          user2_id: string
+          user_id: string
         }
         Insert: {
+          buddy_id?: string | null
           created_at?: string
           id?: string
           status?: string
-          trip_id: string
           updated_at?: string
-          user1_id: string
-          user2_id: string
+          user_id: string
         }
         Update: {
+          buddy_id?: string | null
           created_at?: string
           id?: string
           status?: string
-          trip_id?: string
           updated_at?: string
-          user1_id?: string
-          user2_id?: string
+          user_id?: string
         }
         Relationships: []
       }
