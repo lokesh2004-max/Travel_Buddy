@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   Users, MessageCircle, Globe, Bell, Zap,
   Calendar, ArrowRight, UserPlus, PlaneTakeoff, Pencil,
-  LogOut, Loader2, Sparkles,
+  LogOut, Loader2, Sparkles, ClipboardList,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ProfileCompletionChecklist from '@/components/ProfileCompletionChecklist';
@@ -25,11 +25,17 @@ interface Profile {
 
 interface Match {
   id: string;
-  user1_id: string;
-  user2_id: string;
+  user_id: string;
+  buddy_id: string | null;
   status: string;
-  trip_id: string;
   created_at: string;
+}
+
+interface BuddyInfo {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  location: string | null;
 }
 
 interface Trip {
@@ -73,7 +79,7 @@ const Dashboard = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [recentMessages, setRecentMessages] = useState<Message[]>([]);
-  const [matchProfiles, setMatchProfiles] = useState<Record<string, Profile>>({});
+  const [buddyInfoMap, setBuddyInfoMap] = useState<Record<string, BuddyInfo>>({});
 
   useEffect(() => {
     const init = async () => {
@@ -95,29 +101,25 @@ const Dashboard = () => {
       const [profileRes, quizRes, matchesRes, tripsRes, notifRes, messagesRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
         supabase.from('quiz_answers').select('user_id').eq('user_id', userId).maybeSingle(),
-        supabase.from('buddy_matches').select('*').or(`user1_id.eq.${userId},user2_id.eq.${userId}`).eq('status', 'accepted').order('created_at', { ascending: false }).limit(5),
+        supabase.from('buddy_matches').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
         supabase.from('trips').select('*').eq('user_id', userId).neq('status', 'completed').order('start_date', { ascending: true }).limit(5),
         supabase.from('notifications').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
         supabase.from('messages').select('*').eq('sender_id', userId).order('created_at', { ascending: false }).limit(5),
       ]);
 
       if (profileRes.data) setProfile(profileRes.data);
-
-      // Check if user has completed the quiz
       setHasQuizAnswers(!!quizRes.data);
-      if (!quizRes.data) {
-        console.log('[Dashboard] New user — no quiz answers found, showing quiz prompt');
-      }
 
       if (matchesRes.data) {
         setMatches(matchesRes.data);
-        const buddyIds = matchesRes.data.map(m => m.user1_id === userId ? m.user2_id : m.user1_id);
+        // Fetch buddy info from buddies table
+        const buddyIds = matchesRes.data.map(m => m.buddy_id).filter(Boolean) as string[];
         if (buddyIds.length > 0) {
-          const { data: profiles } = await supabase.from('profiles').select('*').in('id', buddyIds);
-          if (profiles) {
-            const map: Record<string, Profile> = {};
-            profiles.forEach(p => { map[p.id] = p; });
-            setMatchProfiles(map);
+          const { data: buddies } = await supabase.from('buddies').select('id, full_name, avatar_url, location').in('id', buddyIds);
+          if (buddies) {
+            const map: Record<string, BuddyInfo> = {};
+            buddies.forEach(b => { map[b.id] = b; });
+            setBuddyInfoMap(map);
           }
         }
       }
@@ -190,7 +192,7 @@ const Dashboard = () => {
           <p className="text-gray-500 mt-1">Here's what's happening with your travels</p>
         </div>
 
-        {/* ── New-user onboarding banner ── */}
+        {/* New-user onboarding banner */}
         {!hasQuizAnswers && (
           <div className="mb-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -204,11 +206,7 @@ const Dashboard = () => {
                   </p>
                 </div>
               </div>
-              <Button
-                size="lg"
-                className="bg-white text-blue-700 hover:bg-blue-50 font-bold shrink-0"
-                onClick={() => navigate('/queera')}
-              >
+              <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50 font-bold shrink-0" onClick={() => navigate('/queera')}>
                 Take the Quiz →
               </Button>
             </div>
@@ -235,15 +233,12 @@ const Dashboard = () => {
               {matches.length === 0 ? (
                 <div className="text-center py-4">
                   <p className="text-gray-400 text-sm mb-3">No matches yet. Take the quiz!</p>
-                  <Button size="sm" variant="outline" onClick={() => navigate('/queera')}>
-                    Find Buddies
-                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => navigate('/queera')}>Find Buddies</Button>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {matches.slice(0, 3).map(match => {
-                    const buddyId = match.user1_id === profile?.id ? match.user2_id : match.user1_id;
-                    const buddy   = matchProfiles[buddyId];
+                    const buddy = match.buddy_id ? buddyInfoMap[match.buddy_id] : null;
                     return (
                       <div key={match.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -253,7 +248,10 @@ const Dashboard = () => {
                               {(buddy?.full_name || '?').charAt(0)}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-sm font-medium">{buddy?.full_name || 'Unknown'}</span>
+                          <div>
+                            <span className="text-sm font-medium">{buddy?.full_name || 'Unknown'}</span>
+                            <Badge variant="outline" className="ml-2 text-xs capitalize">{match.status}</Badge>
+                          </div>
                         </div>
                         <Button size="sm" variant="outline" onClick={() => navigate('/messages')}>
                           <MessageCircle size={14} className="mr-1" /> Chat
@@ -261,6 +259,11 @@ const Dashboard = () => {
                       </div>
                     );
                   })}
+                  {matches.length > 3 && (
+                    <Button variant="ghost" size="sm" className="w-full" onClick={() => navigate('/my-requests')}>
+                      View All Requests <ArrowRight size={14} className="ml-1" />
+                    </Button>
+                  )}
                 </div>
               )}
             </CardContent>
@@ -393,9 +396,9 @@ const Dashboard = () => {
                   <PlaneTakeoff size={22} className="text-green-600" />
                   <span className="text-xs">Plan Trip</span>
                 </Button>
-                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-purple-50 hover:border-purple-200" onClick={() => navigate('/messages')}>
-                  <MessageCircle size={22} className="text-purple-600" />
-                  <span className="text-xs">Messages</span>
+                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-purple-50 hover:border-purple-200" onClick={() => navigate('/my-requests')}>
+                  <ClipboardList size={22} className="text-purple-600" />
+                  <span className="text-xs">My Requests</span>
                 </Button>
                 <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-orange-50 hover:border-orange-200" onClick={() => navigate('/profile')}>
                   <Pencil size={22} className="text-orange-600" />
