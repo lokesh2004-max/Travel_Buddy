@@ -15,6 +15,7 @@ import MessagesPage from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import MyRequests from "./pages/MyRequests";
 
 const queryClient = new QueryClient();
 
