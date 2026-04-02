@@ -1,0 +1,1 @@
+ALTER TABLE public.buddies RENAME COLUMN name TO full_name;

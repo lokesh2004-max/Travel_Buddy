@@ -24,11 +24,11 @@ export type Database = {
           created_at: string | null
           destination_type: string | null
           email: string | null
+          full_name: string | null
           group_size: string | null
           id: string
           interests: string[] | null
           location: string | null
-          name: string | null
           travel_style: string | null
         }
         Insert: {
@@ -40,11 +40,11 @@ export type Database = {
           created_at?: string | null
           destination_type?: string | null
           email?: string | null
+          full_name?: string | null
           group_size?: string | null
           id?: string
           interests?: string[] | null
           location?: string | null
-          name?: string | null
           travel_style?: string | null
         }
         Update: {
@@ -56,11 +56,11 @@ export type Database = {
           created_at?: string | null
           destination_type?: string | null
           email?: string | null
+          full_name?: string | null
           group_size?: string | null
           id?: string
           interests?: string[] | null
           location?: string | null
-          name?: string | null
           travel_style?: string | null
         }
         Relationships: []
