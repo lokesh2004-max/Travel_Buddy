@@ -36,6 +36,7 @@ const App = () => (
           {/* ── Main flow ── */}
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/my-requests" element={<MyRequests />} />
           <Route path="/profile" element={<Profile />} />
 
           {/* ── Search ── */}
