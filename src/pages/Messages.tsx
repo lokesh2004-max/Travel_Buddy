@@ -106,8 +106,6 @@ const MessagesPage: React.FC = () => {
             isLoading={isLoading}
             currentUserId={currentUserId}
             onSelectMatch={setSelectedMatch}
-            onAccept={acceptMatch}
-            onReject={rejectMatch}
           />
         )}
       </main>
