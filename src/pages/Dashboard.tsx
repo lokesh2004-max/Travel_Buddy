@@ -98,13 +98,13 @@ const Dashboard = () => {
   const fetchDashboardData = async (userId: string) => {
     setLoading(true);
     try {
-      const [profileRes, quizRes, matchesRes, tripsRes, notifRes, messagesRes] = await Promise.all([
+      // Step 1: Fetch profile, quiz, matches, trips, notifications in parallel
+      const [profileRes, quizRes, matchesRes, tripsRes, notifRes] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
         supabase.from('quiz_answers').select('user_id').eq('user_id', userId).maybeSingle(),
         supabase.from('buddy_matches').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
         supabase.from('trips').select('*').eq('user_id', userId).neq('status', 'completed').order('start_date', { ascending: true }).limit(5),
         supabase.from('notifications').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
-        supabase.from('messages').select('*').eq('sender_id', userId).order('created_at', { ascending: false }).limit(5),
       ]);
 
       if (profileRes.data) setProfile(profileRes.data);
@@ -112,7 +112,8 @@ const Dashboard = () => {
 
       if (matchesRes.data) {
         setMatches(matchesRes.data);
-        // Fetch buddy info from buddies table
+
+        // Batch fetch buddy info (fixes N+1)
         const buddyIds = matchesRes.data.map(m => m.buddy_id).filter(Boolean) as string[];
         if (buddyIds.length > 0) {
           const { data: buddies } = await supabase.from('buddies').select('id, full_name, avatar_url, location').in('id', buddyIds);
@@ -122,10 +123,22 @@ const Dashboard = () => {
             setBuddyInfoMap(map);
           }
         }
+
+        // Step 2: Fetch messages from user's matches (both sent and received)
+        const matchIds = matchesRes.data.map(m => m.id);
+        if (matchIds.length > 0) {
+          const { data: messagesData } = await supabase
+            .from('messages')
+            .select('*')
+            .in('match_id', matchIds)
+            .order('created_at', { ascending: false })
+            .limit(5);
+          if (messagesData) setRecentMessages(messagesData);
+        }
       }
+
       if (tripsRes.data)    setTrips(tripsRes.data);
       if (notifRes.data)    setNotifications(notifRes.data);
-      if (messagesRes.data) setRecentMessages(messagesRes.data);
     } catch (err) {
       console.error('Dashboard fetch error:', err);
     } finally {
@@ -392,22 +405,21 @@ const Dashboard = () => {
                   <UserPlus size={22} className="text-blue-600" />
                   <span className="text-xs">Find Buddy</span>
                 </Button>
-                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-green-50 hover:border-green-200" onClick={() => navigate('/destination-recommendations')}>
-                  <PlaneTakeoff size={22} className="text-green-600" />
-                  <span className="text-xs">Plan Trip</span>
-                </Button>
-                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-purple-50 hover:border-purple-200" onClick={() => navigate('/my-requests')}>
-                  <ClipboardList size={22} className="text-purple-600" />
-                  <span className="text-xs">My Requests</span>
-                </Button>
-                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-orange-50 hover:border-orange-200" onClick={() => navigate('/profile')}>
-                  <Pencil size={22} className="text-orange-600" />
+                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-purple-50 hover:border-purple-200" onClick={() => navigate('/profile')}>
+                  <Pencil size={22} className="text-purple-600" />
                   <span className="text-xs">Edit Profile</span>
+                </Button>
+                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-green-50 hover:border-green-200" onClick={() => navigate('/destination-recommendations')}>
+                  <Globe size={22} className="text-green-600" />
+                  <span className="text-xs">Explore</span>
+                </Button>
+                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-orange-50 hover:border-orange-200" onClick={() => navigate('/my-requests')}>
+                  <ClipboardList size={22} className="text-orange-600" />
+                  <span className="text-xs">My Requests</span>
                 </Button>
               </div>
             </CardContent>
           </Card>
-
         </div>
       </div>
     </div>

@@ -23,8 +23,6 @@ const MessagesPage: React.FC = () => {
     matches,
     isLoading,
     currentUserId,
-    acceptMatch,
-    rejectMatch,
   } = useBuddyMatches();
 
   // Check authentication status
@@ -108,8 +106,6 @@ const MessagesPage: React.FC = () => {
             isLoading={isLoading}
             currentUserId={currentUserId}
             onSelectMatch={setSelectedMatch}
-            onAccept={acceptMatch}
-            onReject={rejectMatch}
           />
         )}
       </main>

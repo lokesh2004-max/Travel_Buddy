@@ -92,7 +92,6 @@ const BuddyMatch = () => {
       let myAnswers: UserAnswers | null = null;
 
       if (user) {
-        // Load quiz answers and existing requests in parallel
         const [quizRes, requestsRes] = await Promise.all([
           supabase.from('quiz_answers')
             .select('travel_style, budget, accommodation, group_size, destination_type')
@@ -114,7 +113,6 @@ const BuddyMatch = () => {
           });
         }
 
-        // Track already-requested buddy IDs
         if (requestsRes.data) {
           setRequestedIds(new Set(requestsRes.data.map(r => r.buddy_id).filter(Boolean) as string[]));
         }
@@ -128,7 +126,6 @@ const BuddyMatch = () => {
         myAnswers = quizAnswers as UserAnswers;
       }
 
-      // Fetch buddies (using full_name now)
       const { data: buddiesData, error: buddiesError } = await supabase
         .from('buddies')
         .select('id, full_name, age, location, bio, interests, avatar_url, travel_style, budget, accommodation, group_size, destination_type');
@@ -203,27 +200,32 @@ const BuddyMatch = () => {
           .maybeSingle();
 
         if (existing) {
-          toast({ title: 'Already Requested ✅', description: `You've already sent a request to ${buddy.name}.` });
+          toast({ title: 'Already Matched ✅', description: `You've already matched with ${buddy.name}.` });
         } else {
+          // Auto-accept since buddies are dummy data
           const { error } = await supabase.from('buddy_matches').insert({
             user_id: user.id,
             buddy_id: buddy.id,
-            status: 'pending',
+            status: 'accepted',
           });
           if (error) throw error;
 
-          // Insert notification
-          await supabase.from('notifications').insert({
-            user_id: user.id,
-            title: 'Buddy Request Sent',
-            message: `You sent a buddy request to ${buddy.name} (${buddy.matchPercentage}% match).`,
-          }).then(() => {}, () => {}); // ignore errors for notification
+          // Insert notification with proper error handling
+          try {
+            await supabase.from('notifications').insert({
+              user_id: user.id,
+              title: 'Buddy Matched!',
+              message: `You matched with ${buddy.name} (${buddy.matchPercentage}% compatibility). Start chatting now!`,
+            });
+          } catch (notifError) {
+            console.warn('Notification insert failed:', notifError);
+          }
 
           setRequestedIds(prev => new Set(prev).add(buddy.id));
 
           toast({
-            title: `Request sent to ${buddy.name}! 🎉`,
-            description: `${buddy.matchPercentage}% compatibility — check Messages to chat`,
+            title: `Matched with ${buddy.name}! 🎉`,
+            description: `${buddy.matchPercentage}% compatibility — head to Messages to chat`,
           });
         }
       }
@@ -378,12 +380,10 @@ const BuddyMatch = () => {
                         >
                           {selecting === buddy.id ? (
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          ) : alreadyRequested ? (
-                            <CheckCircle className="h-4 w-4 mr-2" />
                           ) : (
                             <CheckCircle className="h-4 w-4 mr-2" />
                           )}
-                          {alreadyRequested ? 'Already Requested' : 'Select Buddy'}
+                          {alreadyRequested ? 'Already Matched' : 'Match Buddy'}
                         </Button>
                         <Button
                           variant="outline"
@@ -414,7 +414,7 @@ const BuddyMatch = () => {
         {/* Retake quiz */}
         <div className="text-center mt-12">
           <Button variant="outline" onClick={() => navigate('/queera')} className="border-primary text-primary hover:bg-primary/5">
-            Retake Quiz
+            🔄 Retake Quiz for Better Matches
           </Button>
         </div>
       </div>

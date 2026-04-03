@@ -5,18 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Check, X, Clock, Users, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Check, Users, MessageCircle } from 'lucide-react';
 import { useBuddyMatches } from '@/hooks/useBuddyMatches';
-
-const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive'; icon: React.ReactNode }> = {
-  pending:  { label: 'Pending',  variant: 'secondary',    icon: <Clock className="h-3 w-3 mr-1" /> },
-  accepted: { label: 'Accepted', variant: 'default',      icon: <Check className="h-3 w-3 mr-1" /> },
-  rejected: { label: 'Declined', variant: 'destructive',  icon: <X className="h-3 w-3 mr-1" /> },
-};
 
 const MyRequests: React.FC = () => {
   const navigate = useNavigate();
-  const { matches, isLoading, rejectMatch } = useBuddyMatches();
+  const { matches, isLoading } = useBuddyMatches();
 
   const getInitials = (name: string | null) =>
     name ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : '??';
@@ -34,7 +28,7 @@ const MyRequests: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
-              My Buddy Requests ({matches.length})
+              My Buddy Matches ({matches.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -53,7 +47,7 @@ const MyRequests: React.FC = () => {
             ) : matches.length === 0 ? (
               <div className="text-center py-12">
                 <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground font-medium">No buddy requests yet</p>
+                <p className="text-muted-foreground font-medium">No buddy matches yet</p>
                 <p className="text-sm text-muted-foreground mt-1 mb-4">Take the quiz and find your travel companions!</p>
                 <Button onClick={() => navigate('/queera')}>Find Buddies</Button>
               </div>
@@ -61,7 +55,6 @@ const MyRequests: React.FC = () => {
               <div className="space-y-3">
                 {matches.map(match => {
                   const buddy = match.buddy_profile;
-                  const cfg = statusConfig[match.status] || statusConfig.pending;
 
                   return (
                     <div key={match.id} className="flex items-center gap-3 p-4 border rounded-lg hover:bg-muted/30 transition-colors">
@@ -74,29 +67,15 @@ const MyRequests: React.FC = () => {
                         <p className="font-medium truncate">{buddy?.full_name || 'Unknown Buddy'}</p>
                         <p className="text-sm text-muted-foreground truncate">{buddy?.location || 'Location unknown'}</p>
                         <div className="mt-1">
-                          <Badge variant={cfg.variant} className="text-xs">
-                            {cfg.icon} {cfg.label}
+                          <Badge variant="default" className="text-xs">
+                            <Check className="h-3 w-3 mr-1" /> Matched
                           </Badge>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        {match.status === 'pending' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-destructive hover:bg-destructive/10"
-                            onClick={() => rejectMatch(match.id)}
-                          >
-                            Withdraw
-                          </Button>
-                        )}
-                        {match.status === 'accepted' && (
-                          <Button size="sm" variant="outline" onClick={() => navigate('/messages')}>
-                            <MessageCircle className="h-4 w-4 mr-1" /> Chat
-                          </Button>
-                        )}
-                      </div>
+                      <Button size="sm" variant="outline" onClick={() => navigate('/messages')}>
+                        <MessageCircle className="h-4 w-4 mr-1" /> Chat
+                      </Button>
                     </div>
                   );
                 })}

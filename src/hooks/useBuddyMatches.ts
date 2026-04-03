@@ -2,6 +2,7 @@
  * Custom Hook: useBuddyMatches
  * Manages buddy match operations and state.
  * Matches are between logged-in user (user_id) and dummy buddies (buddy_id).
+ * All matches are auto-accepted since buddies are dummy data.
  */
 
 import { useState, useEffect, useCallback } from 'react';
@@ -12,7 +13,7 @@ export interface BuddyMatch {
   id: string;
   user_id: string;
   buddy_id: string | null;
-  status: 'pending' | 'accepted' | 'rejected';
+  status: 'accepted';
   created_at: string;
   updated_at: string;
 }
@@ -58,38 +59,38 @@ export const useBuddyMatches = () => {
 
       if (matchesError) throw matchesError;
 
-      // Fetch buddy info from buddies table (not profiles)
-      const matchesWithProfiles: MatchWithProfile[] = await Promise.all(
-        (matchesData || []).map(async (match) => {
-          const buddyId = match.buddy_id;
-          let buddyProfile: MatchWithProfile['buddy_profile'] = null;
+      // Batch fetch all buddies in ONE query (fixes N+1)
+      const buddyIds = (matchesData || [])
+        .map(m => m.buddy_id)
+        .filter(Boolean) as string[];
 
-          if (buddyId) {
-            const { data: buddyData } = await supabase
-              .from('buddies')
-              .select('id, full_name, avatar_url, bio, interests, location')
-              .eq('id', buddyId)
-              .single();
+      let buddyMap: Record<string, MatchWithProfile['buddy_profile']> = {};
 
-            if (buddyData) {
-              buddyProfile = {
-                id: buddyData.id,
-                full_name: buddyData.full_name,
-                avatar_url: buddyData.avatar_url,
-                bio: buddyData.bio,
-                interests: buddyData.interests as string[] | null,
-                location: buddyData.location,
-              };
-            }
-          }
+      if (buddyIds.length > 0) {
+        const { data: buddiesData } = await supabase
+          .from('buddies')
+          .select('id, full_name, avatar_url, bio, interests, location')
+          .in('id', buddyIds);
 
-          return {
-            ...match,
-            status: match.status as 'pending' | 'accepted' | 'rejected',
-            buddy_profile: buddyProfile,
-          };
-        })
-      );
+        if (buddiesData) {
+          buddiesData.forEach(b => {
+            buddyMap[b.id] = {
+              id: b.id,
+              full_name: b.full_name,
+              avatar_url: b.avatar_url,
+              bio: b.bio,
+              interests: b.interests as string[] | null,
+              location: b.location,
+            };
+          });
+        }
+      }
+
+      const matchesWithProfiles: MatchWithProfile[] = (matchesData || []).map(match => ({
+        ...match,
+        status: match.status as 'accepted',
+        buddy_profile: match.buddy_id ? buddyMap[match.buddy_id] || null : null,
+      }));
 
       setMatches(matchesWithProfiles);
     } catch (error) {
@@ -119,15 +120,16 @@ export const useBuddyMatches = () => {
           return existing.id;
         }
 
+        // Auto-accept since buddies are dummy data
         const { data, error } = await supabase
           .from('buddy_matches')
-          .insert({ user_id: userData.user.id, buddy_id: buddyId, status: 'pending' })
+          .insert({ user_id: userData.user.id, buddy_id: buddyId, status: 'accepted' })
           .select('id')
           .single();
 
         if (error) throw error;
 
-        toast({ title: 'Match Request Sent! 🎉', description: 'Waiting for your buddy to accept' });
+        toast({ title: 'Buddy Matched! 🎉', description: 'You can now start chatting with your travel buddy' });
         await fetchMatches();
         return data.id;
       } catch (error: any) {
@@ -139,41 +141,7 @@ export const useBuddyMatches = () => {
     [toast, fetchMatches]
   );
 
-  const acceptMatch = useCallback(
-    async (matchId: string): Promise<boolean> => {
-      try {
-        const { error } = await supabase.from('buddy_matches').update({ status: 'accepted' }).eq('id', matchId);
-        if (error) throw error;
-        toast({ title: 'Match Accepted! 🤝', description: 'You can now start chatting with your travel buddy' });
-        await fetchMatches();
-        return true;
-      } catch (error: any) {
-        console.error('Failed to accept match:', error);
-        toast({ title: 'Failed to accept', description: error.message, variant: 'destructive' });
-        return false;
-      }
-    },
-    [toast, fetchMatches]
-  );
-
-  const rejectMatch = useCallback(
-    async (matchId: string): Promise<boolean> => {
-      try {
-        const { error } = await supabase.from('buddy_matches').update({ status: 'rejected' }).eq('id', matchId);
-        if (error) throw error;
-        toast({ title: 'Match Declined', description: 'The match request has been declined' });
-        await fetchMatches();
-        return true;
-      } catch (error: any) {
-        console.error('Failed to reject match:', error);
-        toast({ title: 'Failed to decline', description: error.message, variant: 'destructive' });
-        return false;
-      }
-    },
-    [toast, fetchMatches]
-  );
-
   useEffect(() => { fetchMatches(); }, [fetchMatches]);
 
-  return { matches, isLoading, currentUserId, createMatch, acceptMatch, rejectMatch, refetch: fetchMatches };
+  return { matches, isLoading, currentUserId, createMatch, refetch: fetchMatches };
 };
