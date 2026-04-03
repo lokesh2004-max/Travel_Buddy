@@ -1,6 +1,6 @@
 /**
  * MatchesList Component
- * Displays list of buddy matches with status indicators
+ * Displays list of buddy matches — all auto-accepted since buddies are dummy data.
  */
 
 import React from 'react';
@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Check, X, MessageCircle, Clock, Users } from 'lucide-react';
+import { Check, MessageCircle, Users } from 'lucide-react';
 import type { MatchWithProfile } from '@/hooks/useBuddyMatches';
 import { cn } from '@/lib/utils';
 
@@ -18,8 +18,8 @@ interface MatchesListProps {
   isLoading: boolean;
   currentUserId: string | null;
   onSelectMatch: (match: MatchWithProfile) => void;
-  onAccept: (matchId: string) => void;
-  onReject: (matchId: string) => void;
+  onAccept?: (matchId: string) => void;
+  onReject?: (matchId: string) => void;
 }
 
 export const MatchesList: React.FC<MatchesListProps> = ({
@@ -27,25 +27,10 @@ export const MatchesList: React.FC<MatchesListProps> = ({
   isLoading,
   currentUserId,
   onSelectMatch,
-  onAccept,
-  onReject,
 }) => {
   const getInitials = (name: string | null) => {
     if (!name) return '??';
     return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'accepted':
-        return <Badge className="bg-primary text-primary-foreground"><Check className="h-3 w-3 mr-1" />Matched</Badge>;
-      case 'pending':
-        return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
-      case 'rejected':
-        return <Badge variant="destructive"><X className="h-3 w-3 mr-1" />Declined</Badge>;
-      default:
-        return null;
-    }
   };
 
   if (isLoading) {
@@ -95,11 +80,8 @@ export const MatchesList: React.FC<MatchesListProps> = ({
         {matches.map((match) => (
           <div
             key={match.id}
-            className={cn(
-              'flex items-center gap-3 p-3 border rounded-lg transition-colors',
-              match.status === 'accepted' ? 'hover:bg-muted/50 cursor-pointer' : 'bg-muted/30'
-            )}
-            onClick={() => match.status === 'accepted' && onSelectMatch(match)}
+            className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+            onClick={() => onSelectMatch(match)}
           >
             <Avatar className="h-12 w-12">
               <AvatarImage src={match.buddy_profile?.avatar_url || undefined} alt={match.buddy_profile?.full_name || 'Buddy'} />
@@ -109,16 +91,14 @@ export const MatchesList: React.FC<MatchesListProps> = ({
             <div className="flex-1 min-w-0">
               <p className="font-medium truncate">{match.buddy_profile?.full_name || 'Unknown Buddy'}</p>
               <p className="text-sm text-muted-foreground truncate">{match.buddy_profile?.location || 'Location unknown'}</p>
-              <div className="mt-1">{getStatusBadge(match.status)}</div>
+              <div className="mt-1">
+                <Badge className="bg-primary text-primary-foreground"><Check className="h-3 w-3 mr-1" />Matched</Badge>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              {match.status === 'accepted' && (
-                <Button size="icon" variant="ghost" className="h-9 w-9" aria-label="Open chat">
-                  <MessageCircle className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
+            <Button size="icon" variant="ghost" className="h-9 w-9" aria-label="Open chat">
+              <MessageCircle className="h-4 w-4" />
+            </Button>
           </div>
         ))}
       </CardContent>
