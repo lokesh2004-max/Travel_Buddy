@@ -56,6 +56,14 @@ function getPackingItems(destination: string, days: number): string[] {
   return items;
 }
 
+const STORAGE_KEY = 'travel-buddy-packing';
+
+interface StoredPacking {
+  destination: string;
+  days: number;
+  packingList: PackingItem[];
+}
+
 const PackingAssistant = () => {
   const navigate = useNavigate();
   const [destination, setDestination] = useState('');
@@ -63,17 +71,40 @@ const PackingAssistant = () => {
   const [packingList, setPackingList] = useState<PackingItem[]>([]);
   const [generated, setGenerated] = useState(false);
 
+  // Restore from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed: StoredPacking = JSON.parse(saved);
+        setDestination(parsed.destination);
+        setDays(parsed.days);
+        setPackingList(parsed.packingList);
+        setGenerated(true);
+      }
+    } catch { /* ignore corrupt data */ }
+  }, []);
+
+  const persistList = (list: PackingItem[], dest: string, d: number) => {
+    const data: StoredPacking = { destination: dest, days: d, packingList: list };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  };
+
   const handleGenerate = () => {
     if (!destination.trim()) return;
     const items = getPackingItems(destination, days);
-    setPackingList(items.map(name => ({ name, checked: false })));
+    const list = items.map(name => ({ name, checked: false }));
+    setPackingList(list);
     setGenerated(true);
+    persistList(list, destination, days);
   };
 
   const toggleItem = (index: number) => {
-    setPackingList(prev =>
-      prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item))
-    );
+    setPackingList(prev => {
+      const updated = prev.map((item, i) => (i === index ? { ...item, checked: !item.checked } : item));
+      persistList(updated, destination, days);
+      return updated;
+    });
   };
 
   const checkedCount = packingList.filter(i => i.checked).length;
