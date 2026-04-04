@@ -16,6 +16,8 @@ import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import MyRequests from "./pages/MyRequests";
+import PackingAssistant from "./pages/PackingAssistant";
+import Moments from "./pages/Moments";
 
 const queryClient = new QueryClient();
 
