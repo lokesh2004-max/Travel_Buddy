@@ -57,6 +57,8 @@ const App = () => (
 
           {/* ── Extras ── */}
           <Route path="/swipe-match" element={<SwipeMatch />} />
+          <Route path="/packing" element={<PackingAssistant />} />
+          <Route path="/moments" element={<Moments />} />
           <Route path="/messages" element={<MessagesPage />} />
 
           {/* ── Catch-all (MUST be last) ── */}
