@@ -8,10 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import {
   Users, MessageCircle, Globe, Bell, Zap,
   Calendar, ArrowRight, UserPlus, PlaneTakeoff, Pencil,
-  LogOut, Loader2, Sparkles, ClipboardList,
+  LogOut, Loader2, Sparkles, ClipboardList, Luggage, Camera,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ProfileCompletionChecklist from '@/components/ProfileCompletionChecklist';
+import WeatherCard from '@/components/WeatherCard';
 
 interface Profile {
   id: string;
@@ -357,7 +358,10 @@ const Dashboard = () => {
                     <img src={dest.image} alt={dest.name} className="w-14 h-14 rounded-xl object-cover group-hover:scale-105 transition-transform" />
                     <div className="flex-1">
                       <p className="font-medium text-sm">{dest.name}</p>
-                      <Badge variant="outline" className="text-xs">{dest.tag}</Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">{dest.tag}</Badge>
+                        <WeatherCard location={dest.name} />
+                      </div>
                     </div>
                     <ArrowRight size={16} className="text-gray-400 group-hover:text-blue-600 transition-colors" />
                   </div>
@@ -392,6 +396,21 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
+          {/* Travel Moments */}
+          <Card className="shadow-md hover:shadow-xl transition-shadow rounded-2xl">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Camera size={20} className="text-pink-500" /> Travel Moments
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm mb-4">Share and explore travel photos from the community.</p>
+              <Button className="w-full" onClick={() => navigate('/moments')}>
+                📸 Explore Moments
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Quick Actions */}
           <Card className="shadow-md hover:shadow-xl transition-shadow rounded-2xl">
             <CardHeader className="pb-2">
@@ -400,7 +419,7 @@ const Dashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-blue-50 hover:border-blue-200" onClick={() => navigate('/queera')}>
                   <UserPlus size={22} className="text-blue-600" />
                   <span className="text-xs">Find Buddy</span>
@@ -416,6 +435,14 @@ const Dashboard = () => {
                 <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-orange-50 hover:border-orange-200" onClick={() => navigate('/my-requests')}>
                   <ClipboardList size={22} className="text-orange-600" />
                   <span className="text-xs">My Requests</span>
+                </Button>
+                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-yellow-50 hover:border-yellow-200" onClick={() => navigate('/packing')}>
+                  <Luggage size={22} className="text-yellow-600" />
+                  <span className="text-xs">Packing List</span>
+                </Button>
+                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-pink-50 hover:border-pink-200" onClick={() => navigate('/moments')}>
+                  <Camera size={22} className="text-pink-600" />
+                  <span className="text-xs">Moments</span>
                 </Button>
               </div>
             </CardContent>

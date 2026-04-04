@@ -16,6 +16,8 @@ import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import MyRequests from "./pages/MyRequests";
+import PackingAssistant from "./pages/PackingAssistant";
+import Moments from "./pages/Moments";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +57,8 @@ const App = () => (
 
           {/* ── Extras ── */}
           <Route path="/swipe-match" element={<SwipeMatch />} />
+          <Route path="/packing" element={<PackingAssistant />} />
+          <Route path="/moments" element={<Moments />} />
           <Route path="/messages" element={<MessagesPage />} />
 
           {/* ── Catch-all (MUST be last) ── */}
