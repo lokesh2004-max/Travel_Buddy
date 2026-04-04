@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ProfileCompletionChecklist from '@/components/ProfileCompletionChecklist';
+import WeatherCard from '@/components/WeatherCard';
 
 interface Profile {
   id: string;
