@@ -64,6 +64,14 @@ interface Message {
   created_at: string;
 }
 
+interface Moment {
+  id: string;
+  user_id: string;
+  image_url: string;
+  caption: string | null;
+  created_at: string;
+}
+
 const recommendedDestinations = [
   { name: 'Goa',    image: 'https://www.holidify.com/images/bgImages/GOA.jpg', tag: 'Beach' },
   { name: 'Manali', image: 'https://i0.wp.com/www.tusktravel.com/blog/wp-content/uploads/2021/11/Bandli-Sanctuary-Himachal.jpg?resize=750%2C550&ssl=1', tag: 'Mountains' },
