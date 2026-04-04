@@ -396,6 +396,21 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
+          {/* Travel Moments */}
+          <Card className="shadow-md hover:shadow-xl transition-shadow rounded-2xl">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Camera size={20} className="text-pink-500" /> Travel Moments
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground text-sm mb-4">Share and explore travel photos from the community.</p>
+              <Button className="w-full" onClick={() => navigate('/moments')}>
+                📸 Explore Moments
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Quick Actions */}
           <Card className="shadow-md hover:shadow-xl transition-shadow rounded-2xl">
             <CardHeader className="pb-2">
