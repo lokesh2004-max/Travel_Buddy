@@ -358,7 +358,10 @@ const Dashboard = () => {
                     <img src={dest.image} alt={dest.name} className="w-14 h-14 rounded-xl object-cover group-hover:scale-105 transition-transform" />
                     <div className="flex-1">
                       <p className="font-medium text-sm">{dest.name}</p>
-                      <Badge variant="outline" className="text-xs">{dest.tag}</Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">{dest.tag}</Badge>
+                        <WeatherCard location={dest.name} />
+                      </div>
                     </div>
                     <ArrowRight size={16} className="text-gray-400 group-hover:text-blue-600 transition-colors" />
                   </div>
