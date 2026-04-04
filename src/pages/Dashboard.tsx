@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   Users, MessageCircle, Globe, Bell, Zap,
   Calendar, ArrowRight, UserPlus, PlaneTakeoff, Pencil,
-  LogOut, Loader2, Sparkles, ClipboardList,
+  LogOut, Loader2, Sparkles, ClipboardList, Luggage, Camera,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ProfileCompletionChecklist from '@/components/ProfileCompletionChecklist';
