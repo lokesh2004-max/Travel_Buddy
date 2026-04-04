@@ -419,7 +419,7 @@ const Dashboard = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-blue-50 hover:border-blue-200" onClick={() => navigate('/queera')}>
                   <UserPlus size={22} className="text-blue-600" />
                   <span className="text-xs">Find Buddy</span>
