@@ -50,11 +50,11 @@ const Moments = () => {
     }
 
     setPosting(true);
-    const { error } = await supabase.from('moments').insert([{
+    const { error } = await supabase.from('moments').insert({
       user_id: session.user.id,
       image_url: imageUrl.trim(),
       caption: caption.trim() || null,
-    }] as any);
+    });
 
     if (error) {
       toast({ title: 'Failed to post', description: error.message, variant: 'destructive' });
