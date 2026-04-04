@@ -89,6 +89,7 @@ const Dashboard = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [recentMessages, setRecentMessages] = useState<Message[]>([]);
   const [buddyInfoMap, setBuddyInfoMap] = useState<Record<string, BuddyInfo>>({});
+  const [recentMoments, setRecentMoments] = useState<Moment[]>([]);
 
   useEffect(() => {
     const init = async () => {
