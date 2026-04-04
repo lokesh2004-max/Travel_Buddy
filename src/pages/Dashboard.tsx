@@ -64,6 +64,14 @@ interface Message {
   created_at: string;
 }
 
+interface Moment {
+  id: string;
+  user_id: string;
+  image_url: string;
+  caption: string | null;
+  created_at: string;
+}
+
 const recommendedDestinations = [
   { name: 'Goa',    image: 'https://www.holidify.com/images/bgImages/GOA.jpg', tag: 'Beach' },
   { name: 'Manali', image: 'https://i0.wp.com/www.tusktravel.com/blog/wp-content/uploads/2021/11/Bandli-Sanctuary-Himachal.jpg?resize=750%2C550&ssl=1', tag: 'Mountains' },
@@ -81,6 +89,7 @@ const Dashboard = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [recentMessages, setRecentMessages] = useState<Message[]>([]);
   const [buddyInfoMap, setBuddyInfoMap] = useState<Record<string, BuddyInfo>>({});
+  const [recentMoments, setRecentMoments] = useState<Moment[]>([]);
 
   useEffect(() => {
     const init = async () => {
@@ -140,6 +149,14 @@ const Dashboard = () => {
 
       if (tripsRes.data)    setTrips(tripsRes.data);
       if (notifRes.data)    setNotifications(notifRes.data);
+
+      // Fetch recent moments for preview
+      const { data: momentsData } = await supabase
+        .from('moments')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(4);
+      if (momentsData) setRecentMoments(momentsData as Moment[]);
     } catch (err) {
       console.error('Dashboard fetch error:', err);
     } finally {
@@ -398,15 +415,36 @@ const Dashboard = () => {
 
           {/* Travel Moments */}
           <Card className="shadow-md hover:shadow-xl transition-shadow rounded-2xl">
-            <CardHeader className="pb-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Camera size={20} className="text-pink-500" /> Travel Moments
               </CardTitle>
+              <Badge variant="secondary">{recentMoments.length}</Badge>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground text-sm mb-4">Share and explore travel photos from the community.</p>
-              <Button className="w-full" onClick={() => navigate('/moments')}>
-                📸 Explore Moments
+              {recentMoments.length === 0 ? (
+                <p className="text-muted-foreground text-sm py-4 text-center">No memories yet. Be the first to share!</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  {recentMoments.map(m => (
+                    <div key={m.id} className="relative rounded-xl overflow-hidden aspect-square cursor-pointer group" onClick={() => navigate('/moments')}>
+                      <img
+                        src={m.image_url}
+                        alt={m.caption || 'Travel moment'}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        onError={e => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+                      />
+                      {m.caption && (
+                        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                          <p className="text-white text-xs truncate">{m.caption}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Button variant="outline" size="sm" className="w-full" onClick={() => navigate('/moments')}>
+                View All <ArrowRight size={14} className="ml-1" />
               </Button>
             </CardContent>
           </Card>
