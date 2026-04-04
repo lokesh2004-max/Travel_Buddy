@@ -421,6 +421,14 @@ const Dashboard = () => {
                   <ClipboardList size={22} className="text-orange-600" />
                   <span className="text-xs">My Requests</span>
                 </Button>
+                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-yellow-50 hover:border-yellow-200" onClick={() => navigate('/packing')}>
+                  <Luggage size={22} className="text-yellow-600" />
+                  <span className="text-xs">Packing List</span>
+                </Button>
+                <Button variant="outline" className="flex flex-col h-auto py-4 gap-2 rounded-xl hover:bg-pink-50 hover:border-pink-200" onClick={() => navigate('/moments')}>
+                  <Camera size={22} className="text-pink-600" />
+                  <span className="text-xs">Moments</span>
+                </Button>
               </div>
             </CardContent>
           </Card>
