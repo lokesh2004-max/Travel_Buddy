@@ -149,6 +149,14 @@ const Dashboard = () => {
 
       if (tripsRes.data)    setTrips(tripsRes.data);
       if (notifRes.data)    setNotifications(notifRes.data);
+
+      // Fetch recent moments for preview
+      const { data: momentsData } = await supabase
+        .from('moments')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(4);
+      if (momentsData) setRecentMoments(momentsData as Moment[]);
     } catch (err) {
       console.error('Dashboard fetch error:', err);
     } finally {
