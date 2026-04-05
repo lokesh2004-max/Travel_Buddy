@@ -12,7 +12,7 @@ import SwipeMatch from "./pages/SwipeMatch";
 import SearchResults from "./pages/SearchResults";
 import BookingPage from "./pages/BookingPage";
 import MessagesPage from "./pages/Messages";
-import NotFound from "./pages/NotFound";
+
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import MyRequests from "./pages/MyRequests";
@@ -61,8 +61,8 @@ const App = () => (
           <Route path="/moments" element={<Moments />} />
           <Route path="/messages" element={<MessagesPage />} />
 
-          {/* ── Catch-all (MUST be last) ── */}
-          <Route path="*" element={<NotFound />} />
+          {/* ── Catch-all: redirect unknown routes to dashboard ── */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
