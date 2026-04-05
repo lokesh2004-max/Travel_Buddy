@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, Users, Shield, Star, Menu, X, Phone, Mail, Globe, ChevronDown, Play, MessageSquareHeart } from 'lucide-react';
+import { Search, MapPin, Users, Shield, Star, Menu, X, Phone, Mail, Globe, ChevronDown, Play, MessageSquareHeart, Camera } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 import FeedbackModal from '@/components/feedback/FeedbackModal';
 import { supabase } from '@/integrations/supabase/client';
