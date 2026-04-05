@@ -130,6 +130,9 @@ const Home = () => {
               <button onClick={() => scrollToSection('destinations')} className="text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium">
                 Destinations
               </button>
+              <button onClick={() => navigate('/moments')} className="text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium flex items-center gap-1.5">
+                <Camera size={16} /> Moments
+              </button>
               <button onClick={() => scrollToSection('faq')} className="text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium">
                 FAQ
               </button>
