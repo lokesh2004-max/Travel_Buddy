@@ -61,8 +61,8 @@ const App = () => (
           <Route path="/moments" element={<Moments />} />
           <Route path="/messages" element={<MessagesPage />} />
 
-          {/* ── Catch-all (MUST be last) ── */}
-          <Route path="*" element={<NotFound />} />
+          {/* ── Catch-all: redirect unknown routes to dashboard ── */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
