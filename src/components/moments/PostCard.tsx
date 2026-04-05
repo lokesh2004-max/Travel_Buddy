@@ -109,7 +109,7 @@ const PostCard: React.FC<{ post: PostData }> = ({ post }) => {
                 size={26}
                 className={cn(
                   'transition-colors',
-                  liked ? 'text-red-500 fill-red-500' : 'text-foreground'
+                  liked ? 'text-destructive fill-destructive' : 'text-foreground'
                 )}
               />
             </button>
