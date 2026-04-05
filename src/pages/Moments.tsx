@@ -55,7 +55,7 @@ const FAKE_POSTS: PostData[] = [
     id: 'fake-5',
     username: 'vikram_hills',
     avatarUrl: 'https://i.pravatar.cc/150?img=53',
-    imageUrl: 'https://images.unsplash.com/photo-1585136917228-cf6f1162a92e?w=800',
+    imageUrl: 'https://images.unsplash.com/photo-1455156218388-5e61b526818b?w=800',
     caption: 'Camping under the stars in Himachal ⛺🌌',
     createdAt: new Date(Date.now() - 3600000 * 48).toISOString(),
   },
