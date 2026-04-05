@@ -12,7 +12,7 @@ import SwipeMatch from "./pages/SwipeMatch";
 import SearchResults from "./pages/SearchResults";
 import BookingPage from "./pages/BookingPage";
 import MessagesPage from "./pages/Messages";
-import NotFound from "./pages/NotFound";
+
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import MyRequests from "./pages/MyRequests";
