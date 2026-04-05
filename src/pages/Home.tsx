@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, Users, Shield, Star, Menu, X, Phone, Mail, Globe, ChevronDown, Play, MessageSquareHeart } from 'lucide-react';
+import { Search, MapPin, Users, Shield, Star, Menu, X, Phone, Mail, Globe, ChevronDown, Play, MessageSquareHeart, Camera } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 import FeedbackModal from '@/components/feedback/FeedbackModal';
 import { supabase } from '@/integrations/supabase/client';
@@ -130,6 +130,9 @@ const Home = () => {
               <button onClick={() => scrollToSection('destinations')} className="text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium">
                 Destinations
               </button>
+              <button onClick={() => navigate('/moments')} className="text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium flex items-center gap-1.5">
+                <Camera size={16} /> Moments
+              </button>
               <button onClick={() => scrollToSection('faq')} className="text-gray-700 hover:text-blue-600 transition-all duration-200 font-medium">
                 FAQ
               </button>
@@ -158,6 +161,7 @@ const Home = () => {
                 <button onClick={() => scrollToSection('why')} className="text-left text-gray-700 hover:text-blue-600 py-2">Why Us</button>
                 <button onClick={() => scrollToSection('how')} className="text-left text-gray-700 hover:text-blue-600 py-2">How It Works</button>
                 <button onClick={() => scrollToSection('destinations')} className="text-left text-gray-700 hover:text-blue-600 py-2">Destinations</button>
+                <button onClick={() => navigate('/moments')} className="text-left text-gray-700 hover:text-blue-600 py-2 flex items-center gap-1.5"><Camera size={16} /> Moments</button>
                 <button onClick={() => scrollToSection('faq')} className="text-left text-gray-700 hover:text-blue-600 py-2">FAQ</button>
                 <button 
                   onClick={() => setIsAuthModalOpen(true)}
