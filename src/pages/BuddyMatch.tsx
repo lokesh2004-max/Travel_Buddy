@@ -342,6 +342,10 @@ const BuddyMatch = () => {
                         <MapPin className="h-3.5 w-3.5" /> {buddy.location}
                       </div>
                       <Badge variant="outline" className={`mx-auto mt-1 text-xs ${band.className}`}>{band.label}</Badge>
+                      {(() => {
+                        const cb = getConfidenceBadge(buddy.confidence);
+                        return cb ? <Badge variant="outline" className={`mx-auto mt-1 text-xs ${cb.className}`}>{cb.label}</Badge> : null;
+                      })()}
                     </CardHeader>
 
                     <CardContent className="pt-0 flex flex-col gap-4 flex-1">
