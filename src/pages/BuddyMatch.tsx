@@ -32,6 +32,14 @@ interface RealBuddy {
   destination_type: string | null;
   matchPercentage: number;
   matchReasons: string[];
+  confidence: number;
+}
+
+function getConfidenceBadge(confidence: number): { label: string; className: string } | null {
+  if (confidence >= 0.8) return { label: 'High Confidence', className: 'bg-success/15 text-success border-success/30' };
+  if (confidence >= 0.5) return { label: 'Moderate Match', className: 'bg-primary/15 text-primary border-primary/30' };
+  if (confidence >= 0.3) return { label: 'Low Confidence', className: 'bg-warning/15 text-warning border-warning/30' };
+  return null;
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
@@ -145,7 +153,7 @@ const BuddyMatch = () => {
           interests:        (b.interests as string[]) ?? [],
         };
 
-        const { score, reasons } = calculateCompatibility(myAnswers!, buddyProfile);
+        const { score, reasons, confidence } = calculateCompatibility(myAnswers!, buddyProfile);
 
         return {
           id:               b.id,
@@ -161,10 +169,13 @@ const BuddyMatch = () => {
           destination_type: b.destination_type,
           matchPercentage:  score,
           matchReasons:     reasons,
+          confidence:       confidence ?? 0.5,
         };
       });
 
-      buddyCandidates.sort((a, b) => b.matchPercentage - a.matchPercentage);
+      buddyCandidates.sort((a, b) =>
+        (b.matchPercentage * (b.confidence ?? 0.5)) - (a.matchPercentage * (a.confidence ?? 0.5))
+      );
       setMatches(buddyCandidates.slice(0, 10));
     } catch (err) {
       console.error('[BuddyMatch] Error:', err);
@@ -331,6 +342,10 @@ const BuddyMatch = () => {
                         <MapPin className="h-3.5 w-3.5" /> {buddy.location}
                       </div>
                       <Badge variant="outline" className={`mx-auto mt-1 text-xs ${band.className}`}>{band.label}</Badge>
+                      {(() => {
+                        const cb = getConfidenceBadge(buddy.confidence);
+                        return cb ? <Badge variant="outline" className={`mx-auto mt-1 text-xs ${cb.className}`}>{cb.label}</Badge> : null;
+                      })()}
                     </CardHeader>
 
                     <CardContent className="pt-0 flex flex-col gap-4 flex-1">
