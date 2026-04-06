@@ -173,7 +173,9 @@ const BuddyMatch = () => {
         };
       });
 
-      buddyCandidates.sort((a, b) => b.matchPercentage - a.matchPercentage);
+      buddyCandidates.sort((a, b) =>
+        (b.matchPercentage * (b.confidence ?? 0.5)) - (a.matchPercentage * (a.confidence ?? 0.5))
+      );
       setMatches(buddyCandidates.slice(0, 10));
     } catch (err) {
       console.error('[BuddyMatch] Error:', err);
