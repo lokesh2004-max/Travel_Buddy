@@ -32,6 +32,14 @@ interface RealBuddy {
   destination_type: string | null;
   matchPercentage: number;
   matchReasons: string[];
+  confidence: number;
+}
+
+function getConfidenceBadge(confidence: number): { label: string; className: string } | null {
+  if (confidence >= 0.8) return { label: 'High Confidence', className: 'bg-success/15 text-success border-success/30' };
+  if (confidence >= 0.5) return { label: 'Moderate Match', className: 'bg-primary/15 text-primary border-primary/30' };
+  if (confidence >= 0.3) return { label: 'Low Confidence', className: 'bg-warning/15 text-warning border-warning/30' };
+  return null;
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
