@@ -498,23 +498,6 @@ const DestinationRecommendations = () => {
                 </div>
 
                 <CardContent className="pt-4">
-                  {/* Match Score */}
-                  <div className="mb-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-semibold text-success">
-                        Compatibility Score
-                      </span>
-                      <span className="text-sm font-bold text-success">
-                        {destination.compatibilityScore}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-500"
-                        style={{ width: `${destination.compatibilityScore}%` }}
-                      />
-                    </div>
-                  </div>
 
                   {/* Description */}
                   <p className="text-sm text-muted-foreground mb-4 line-clamp-2">

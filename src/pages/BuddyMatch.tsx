@@ -351,16 +351,6 @@ const BuddyMatch = () => {
                     <CardContent className="pt-0 flex flex-col gap-4 flex-1">
                       <p className="text-sm text-muted-foreground line-clamp-2">{buddy.bio}</p>
 
-                      {/* Compatibility bar */}
-                      <div>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs font-semibold text-foreground">Compatibility</span>
-                          <span className="text-xs font-bold text-foreground">{buddy.matchPercentage}%</span>
-                        </div>
-                        <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
-                          <div className={`h-full rounded-full transition-all duration-700 ${barColor}`} style={{ width: `${buddy.matchPercentage}%` }} />
-                        </div>
-                      </div>
 
                       {/* Match reasons */}
                       <div>
