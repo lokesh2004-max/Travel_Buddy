@@ -299,7 +299,6 @@ const BuddyMatch = () => {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {visibleMatches.map((buddy, index) => {
                 const band      = getScoreBand(buddy.matchPercentage);
-                const barColor  = getBarColor(buddy.matchPercentage);
                 const isBest    = buddy.id === bestMatchId;
                 const initials  = buddy.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
                 const alreadyRequested = requestedIds.has(buddy.id);
