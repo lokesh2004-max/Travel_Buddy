@@ -153,7 +153,7 @@ const BuddyMatch = () => {
           interests:        (b.interests as string[]) ?? [],
         };
 
-        const { score, reasons } = calculateCompatibility(myAnswers!, buddyProfile);
+        const { score, reasons, confidence } = calculateCompatibility(myAnswers!, buddyProfile);
 
         return {
           id:               b.id,
@@ -169,6 +169,7 @@ const BuddyMatch = () => {
           destination_type: b.destination_type,
           matchPercentage:  score,
           matchReasons:     reasons,
+          confidence:       confidence ?? 0.5,
         };
       });
 
