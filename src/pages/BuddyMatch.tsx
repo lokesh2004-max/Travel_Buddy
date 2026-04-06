@@ -51,12 +51,6 @@ function getScoreBand(score: number): { label: string; className: string } {
   return              { label: 'Low Match',           className: 'bg-muted text-muted-foreground border-border' };
 }
 
-function getBarColor(score: number): string {
-  if (score >= 75) return 'bg-success';
-  if (score >= 50) return 'bg-primary';
-  if (score >= 25) return 'bg-warning';
-  return 'bg-muted-foreground';
-}
 
 function toUserAnswers(row: {
   travel_style: string | null;
