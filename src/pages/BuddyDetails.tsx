@@ -58,12 +58,38 @@ const BuddyDetails = () => {
     });
   }, [navigate, setSelectedBuddy]);
 
+  const [emailSent, setEmailSent] = useState(false);
+
   const handleEmailClick = () => {
-    if (buddy?.email) {
-      const subject = encodeURIComponent(`Travel Buddy Connection - Let's Explore Together! 🌍`);
-      const body = encodeURIComponent(`Hi ${buddy.name.split(' ')[0]},\n\nI found you through Travel Buddy and we're a ${buddy.matchPercentage}% match! I'd love to connect.\n\nBest regards,\nYour Travel Buddy Match`);
-      window.location.href = `mailto:${buddy.email}?subject=${subject}&body=${body}`;
+    if (!buddy?.email) {
+      toast.error('Email not available', {
+        description: `${buddy?.name ?? 'This buddy'} hasn't shared their email yet. Try connecting through the app instead!`,
+      });
+      return;
     }
+
+    const firstName = buddy.name.split(' ')[0];
+    const subject = encodeURIComponent(
+      `Let's Travel Together! 🌍 — ${buddy.matchPercentage}% Match on Travel Buddy`
+    );
+    const body = encodeURIComponent(
+      `Hi ${firstName},\n\n` +
+      `I came across your profile on Travel Buddy and noticed we have a ${buddy.matchPercentage}% compatibility! 🌍\n\n` +
+      `I'd love to connect and explore travel opportunities together. Your interests really align with mine, and I believe we could plan some amazing adventures.\n\n` +
+      `A few things that caught my eye:\n` +
+      `${buddy.interests.slice(0, 3).map(i => `  • ${i}`).join('\n')}\n\n` +
+      `Looking forward to hearing from you!\n\n` +
+      `Best regards,\n` +
+      `Your Travel Buddy Match ✈️`
+    );
+
+    window.location.href = `mailto:${buddy.email}?subject=${subject}&body=${body}`;
+
+    setEmailSent(true);
+    toast.success('Opening your email client…', {
+      description: `Composing a message to ${firstName}`,
+    });
+    setTimeout(() => setEmailSent(false), 3000);
   };
 
   if (!buddy) {
