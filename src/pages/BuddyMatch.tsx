@@ -153,6 +153,7 @@ const BuddyMatch = () => {
         return {
           id:               b.id,
           name:             b.full_name || 'Anonymous Traveler',
+          email:            b.email ?? null,
           location:         b.location  || 'Unknown',
           bio:              b.bio       || 'No bio yet.',
           interests:        (b.interests as string[]) || [],
