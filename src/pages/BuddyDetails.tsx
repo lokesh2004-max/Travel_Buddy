@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, Mail, MapPin, Star, Heart, Calendar, Users, Globe, Languages, Plane, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useBookingStore } from '@/store/bookingStore';
+import { toast } from 'sonner';
 
 interface TravelBuddy {
   id: string;
