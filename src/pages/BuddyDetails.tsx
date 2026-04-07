@@ -212,11 +212,12 @@ const BuddyDetails = () => {
                 {/* Contact Button */}
                 <Button 
                   onClick={handleEmailClick}
-                  className="w-full ocean-gradient hover:opacity-90 glow-effect"
+                  className="w-full ocean-gradient hover:opacity-90 glow-effect transition-all duration-300 hover:scale-[1.02] active:scale-95"
                   size="lg"
+                  disabled={emailSent}
                 >
                   <Mail className="h-4 w-4 mr-2" />
-                  Send Message
+                  {emailSent ? 'Email Opened ✓' : 'Send Message'}
                 </Button>
               </CardContent>
             </Card>
