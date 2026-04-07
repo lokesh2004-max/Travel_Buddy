@@ -21,6 +21,7 @@ import {
 interface RealBuddy {
   id: string;
   name: string;
+  email: string | null;
   location: string;
   bio: string;
   interests: string[];
