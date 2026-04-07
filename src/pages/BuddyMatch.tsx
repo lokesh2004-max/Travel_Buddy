@@ -21,6 +21,7 @@ import {
 interface RealBuddy {
   id: string;
   name: string;
+  email: string | null;
   location: string;
   bio: string;
   interests: string[];
@@ -130,7 +131,7 @@ const BuddyMatch = () => {
 
       const { data: buddiesData, error: buddiesError } = await supabase
         .from('buddies')
-        .select('id, full_name, age, location, bio, interests, avatar_url, travel_style, budget, accommodation, group_size, destination_type');
+        .select('id, full_name, age, email, location, bio, interests, avatar_url, travel_style, budget, accommodation, group_size, destination_type');
 
       if (buddiesError) throw buddiesError;
 
@@ -152,6 +153,7 @@ const BuddyMatch = () => {
         return {
           id:               b.id,
           name:             b.full_name || 'Anonymous Traveler',
+          email:            b.email ?? null,
           location:         b.location  || 'Unknown',
           bio:              b.bio       || 'No bio yet.',
           interests:        (b.interests as string[]) || [],
