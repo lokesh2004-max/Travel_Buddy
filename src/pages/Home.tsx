@@ -5,6 +5,7 @@ import { AuthModal } from '@/components/AuthModal';
 import FeedbackModal from '@/components/feedback/FeedbackModal';
 import { supabase } from '@/integrations/supabase/client';
 import heroBackground from '@/assets/hero-background.webp';
+import BecomeGuideSection from '@/components/BecomeGuideSection';
 import categoryMountain from '@/assets/category-mountain.jpg';
 import categoryForest from '@/assets/category-forest.jpg';
 import categoryCamping from '@/assets/category-camping.jpg';
@@ -400,6 +401,9 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Become a Guide */}
+      <BecomeGuideSection />
 
       {/* Testimonials */}
       <section className="py-20 bg-white">
