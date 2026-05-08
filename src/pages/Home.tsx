@@ -5,7 +5,7 @@ import { AuthModal } from '@/components/AuthModal';
 import FeedbackModal from '@/components/feedback/FeedbackModal';
 import { supabase } from '@/integrations/supabase/client';
 import heroBackground from '@/assets/hero-background.webp';
-import BecomeGuideSection from '@/components/BecomeGuideSection';
+import BecomeGuideCTA from '@/components/BecomeGuideCTA';
 import categoryMountain from '@/assets/category-mountain.jpg';
 import categoryForest from '@/assets/category-forest.jpg';
 import categoryCamping from '@/assets/category-camping.jpg';
@@ -402,8 +402,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Become a Guide */}
-      <BecomeGuideSection />
+      {/* Become a Guide — premium CTA entry point */}
+      <BecomeGuideCTA />
 
       {/* Testimonials */}
       <section className="py-20 bg-white">

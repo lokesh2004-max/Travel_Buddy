@@ -18,6 +18,7 @@ import Profile from "./pages/Profile";
 import MyRequests from "./pages/MyRequests";
 import PackingAssistant from "./pages/PackingAssistant";
 import Moments from "./pages/Moments";
+import BecomeGuide from "./pages/BecomeGuide";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
           <Route path="/packing" element={<PackingAssistant />} />
           <Route path="/moments" element={<Moments />} />
           <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/become-guide" element={<BecomeGuide />} />
 
           {/* ── Catch-all: redirect unknown routes to dashboard ── */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
