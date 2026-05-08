@@ -122,6 +122,72 @@ export type Database = {
         }
         Relationships: []
       }
+      guides: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          categories: string[] | null
+          city: string
+          country: string
+          created_at: string
+          email: string
+          expertise: string | null
+          full_name: string
+          hourly_price: number
+          id: string
+          is_online: boolean
+          is_verified: boolean
+          languages: string[] | null
+          phone: string | null
+          rating: number
+          reviews_count: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          categories?: string[] | null
+          city: string
+          country?: string
+          created_at?: string
+          email: string
+          expertise?: string | null
+          full_name: string
+          hourly_price?: number
+          id?: string
+          is_online?: boolean
+          is_verified?: boolean
+          languages?: string[] | null
+          phone?: string | null
+          rating?: number
+          reviews_count?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          categories?: string[] | null
+          city?: string
+          country?: string
+          created_at?: string
+          email?: string
+          expertise?: string | null
+          full_name?: string
+          hourly_price?: number
+          id?: string
+          is_online?: boolean
+          is_verified?: boolean
+          languages?: string[] | null
+          phone?: string | null
+          rating?: number
+          reviews_count?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
